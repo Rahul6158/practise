@@ -1,2 +1,10 @@
-doctotxt
+docx2txt
+docx
 streamlit
+gtts
+pyttsx3
+pillow
+translate
+googletrans==4.0.0-rc1
+python-docx
+bs4
