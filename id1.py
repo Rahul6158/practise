@@ -1,9 +1,9 @@
 import streamlit as st
-import doctotxt
+import doc2txt
 
 def extract_text_from_docx(docx_file):
     try:
-        text = doctotxt.extract_text(docx_file)
+        text = doc2txt.extract_text(docx_file)
         return text
     except Exception as e:
         return str(e)
