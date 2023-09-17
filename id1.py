@@ -26,12 +26,6 @@ def process_docx_text_without_lists(docx_file):
             text += paragraph.text + '\n'
     return text
 
-# Function to translate text using Google Translate API
-def translate_text_google(text, target_language):
-    translator = Translator()
-    translated_text = translator.translate(text, dest=target_language)
-    return translated_text.text
-
 # Function to translate text without using API (local translation)
 def translate_text(text, target_language):
     try:
@@ -40,7 +34,19 @@ def translate_text(text, target_language):
         return translated_text
 
     except Exception as e:
-        return str(e)
+        # Extract unexpected keyword arguments
+        unexpected_kwargs = {}
+        if hasattr(e, 'args') and e.args:
+            for arg in e.args:
+                if isinstance(arg, dict):
+                    unexpected_kwargs.update(arg)
+        
+        # Display the error message with unexpected keyword arguments
+        error_message = str(e)
+        if unexpected_kwargs:
+            error_message += f"\nUnexpected keyword arguments: {unexpected_kwargs}"
+        
+        return error_message
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
