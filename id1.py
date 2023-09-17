@@ -1,39 +1,24 @@
 import streamlit as st
 import docx
-from googletrans import Translator
-import re
 
-def extract_bullets_from_docx(docx_file):
+def count_words_in_docx(docx_file):
     try:
         doc = docx.Document(docx_file)
 
-        bullet_points = []
+        total_words = 0  # Initialize the word count
 
         for paragraph in doc.paragraphs:
-            if paragraph.style.name.startswith('List Bullet'):
-                bullet_text = paragraph.text
-                bullet_text = re.sub(r'^[\s\*\-\•]+', '', bullet_text)  # Remove leading symbols
-                bullet_points.append(bullet_text)
+            # Count words in the current paragraph and add to the total
+            words_in_paragraph = len(paragraph.text.split())
+            total_words += words_in_paragraph
 
-        return bullet_points
-
-    except Exception as e:
-        return str(e)
-
-def translate_text(text, target_language):
-    try:
-        if text:
-            translator = Translator()
-            translated_text = translator.translate(text, dest=target_language)
-            return translated_text.text
-        else:
-            return ""
+        return total_words
 
     except Exception as e:
-        return str(e)
+        return str(e), 0  # Return 0 words in case of an error
 
 def main():
-    st.title("Bullet Point Extractor and Translator from DOCX")
+    st.title("Word Counter for DOCX")
 
     uploaded_file = st.file_uploader("Upload a DOCX file", type=["docx"])
 
@@ -41,23 +26,12 @@ def main():
         st.markdown("### Uploaded DOCX File:")
         st.write(uploaded_file.name)
 
-        bullet_points = extract_bullets_from_docx(uploaded_file)
+        total_words = count_words_in_docx(uploaded_file)
 
-        if bullet_points:
-            st.markdown("### Extracted Bullet Points:")
-            for i, bullet_point in enumerate(bullet_points, start=1):
-                st.write(f"{i}. {bullet_point}")
-
-            target_language = st.text_input("Enter target language (e.g., 'en' for English):")
-
-            if st.button("Translate Text"):
-                translated_bullet_points = [translate_text(bp, target_language) for bp in bullet_points]
-
-                st.markdown("### Translated Bullet Points:")
-                for i, translated_bullet_point in enumerate(translated_bullet_points, start=1):
-                    st.write(f"{i}. {translated_bullet_point}")
+        if total_words:
+            st.markdown(f"### Word Count: {total_words} words")  # Display the word count
         else:
-            st.warning("No bullet points found in the DOCX file.")
+            st.warning("No words found in the DOCX file.")
 
 if __name__ == "__main__":
     main()
