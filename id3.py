@@ -10,21 +10,25 @@ def remove_non_string_objects(docx_file):
         cleaned_doc = docx.Document()
 
         for element in doc.element.body:
-            if isinstance(element, docx.oxml.text.paragraph.CT_P):
-                # Check if the element is a paragraph
-                new_paragraph = cleaned_doc.add_paragraph()
-                for run in element.runs:
-                    if run.text.strip():
-                        # Add runs with non-empty text to the cleaned paragraph
-                        new_run = new_paragraph.add_run(run.text)
-                        # Copy formatting (e.g., bold, italic) from the original run to the new run
-                        new_run.bold = run.bold
-                        new_run.italic = run.italic
-                        # You can copy other formatting attributes as needed
+            try:
+                if isinstance(element, docx.oxml.text.paragraph.CT_P):
+                    # Check if the element is a paragraph
+                    new_paragraph = cleaned_doc.add_paragraph()
+                    for run in element.runs:
+                        if run.text.strip():
+                            # Add runs with non-empty text to the cleaned paragraph
+                            new_run = new_paragraph.add_run(run.text)
+                            # Copy formatting (e.g., bold, italic) from the original run to the new run
+                            new_run.bold = run.bold
+                            new_run.italic = run.italic
+                            # You can copy other formatting attributes as needed
 
-            elif not isinstance(element, docx.oxml.text.Run):
-                # If the element is not a paragraph, copy it to the cleaned document
-                cleaned_doc.element.body.append(element)
+                elif not isinstance(element, docx.oxml.text.Run):
+                    # If the element is not a paragraph, copy it to the cleaned document
+                    cleaned_doc.element.body.append(element)
+            except Exception as e:
+                st.error(f"Error processing the following element: {element}")
+                raise e
 
         # Save the cleaned document to a BytesIO buffer
         cleaned_buffer = BytesIO()
@@ -34,7 +38,8 @@ def remove_non_string_objects(docx_file):
         return cleaned_buffer
 
     except Exception as e:
-        return str(e)
+        st.error(f"Error processing the DOCX file: {str(e)}")
+        return None
 
 def main():
     st.title("Remove Non-String Objects from DOCX and Download")
