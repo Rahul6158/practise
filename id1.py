@@ -46,7 +46,6 @@ def translate_text(text, target_language):
             error_message += f"\nUnexpected keyword arguments: {unexpected_kwargs}"
         
         return error_message
-This modification checks if the exception e has kwargs (keyword arguments) and if so, it extracts and displays them in the error message. Please try using this modified translate_text function to capture and display unexpected keyword arguments.
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
