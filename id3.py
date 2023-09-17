@@ -1,34 +1,43 @@
 import streamlit as st
 import docx
+from io import BytesIO
 
-def find_non_string_objects(docx_file):
-    non_string_objects = []
-
+def remove_non_string_objects(docx_file):
     try:
         doc = docx.Document(docx_file)
+
+        # Create a new DOCX document to store the cleaned content
+        cleaned_doc = docx.Document()
 
         for element in doc.element.body:
             if isinstance(element, docx.oxml.text.paragraph.CT_P):
                 # Check if the element is a paragraph
+                new_paragraph = cleaned_doc.add_paragraph()
                 for run in element.runs:
-                    if run.text.strip():  # Check if the text content is non-empty
-                        continue
-                    # If the text content is empty, check for non-string objects (e.g., tables, images)
-                    for child in run._r:
-                        if not isinstance(child, docx.oxml.text.Run):
-                            non_string_objects.append(child)
+                    if run.text.strip():
+                        # Add runs with non-empty text to the cleaned paragraph
+                        new_run = new_paragraph.add_run(run.text)
+                        # Copy formatting (e.g., bold, italic) from the original run to the new run
+                        new_run.bold = run.bold
+                        new_run.italic = run.italic
+                        # You can copy other formatting attributes as needed
 
             elif not isinstance(element, docx.oxml.text.Run):
-                # If the element is not a paragraph, check for non-string objects
-                non_string_objects.append(element)
+                # If the element is not a paragraph, copy it to the cleaned document
+                cleaned_doc.element.body.append(element)
 
-        return non_string_objects
+        # Save the cleaned document to a BytesIO buffer
+        cleaned_buffer = BytesIO()
+        cleaned_doc.save(cleaned_buffer)
+        cleaned_buffer.seek(0)
+
+        return cleaned_buffer
 
     except Exception as e:
         return str(e)
 
 def main():
-    st.title("Non-String Object Finder in DOCX")
+    st.title("Remove Non-String Objects from DOCX and Download")
 
     uploaded_file = st.file_uploader("Upload a DOCX file", type=["docx"])
 
@@ -36,14 +45,13 @@ def main():
         st.markdown("### Uploaded DOCX File:")
         st.write(uploaded_file.name)
 
-        non_string_objects = find_non_string_objects(uploaded_file)
+        cleaned_buffer = remove_non_string_objects(uploaded_file)
 
-        if non_string_objects:
-            st.markdown("### Non-String Objects Found:")
-            for i, obj in enumerate(non_string_objects, start=1):
-                st.write(f"{i}. {obj}")
+        if isinstance(cleaned_buffer, BytesIO):
+            st.info("Non-string objects removed. You can download the cleaned DOCX file below.")
+            st.markdown(get_binary_file_downloader_html("Download Cleaned DOCX", cleaned_buffer, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
         else:
-            st.info("No non-string objects found in the DOCX file.")
+            st.warning("Failed to process the DOCX file.")
 
 if __name__ == "__main__":
     main()
