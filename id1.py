@@ -1,5 +1,6 @@
 import streamlit as st
 import docx
+import re
 
 def extract_bullets_from_docx(docx_file):
     try:
@@ -9,7 +10,10 @@ def extract_bullets_from_docx(docx_file):
 
         for paragraph in doc.paragraphs:
             if paragraph.style.name.startswith('List Bullet'):
-                bullet_points.append(paragraph.text)
+                # Use regex to capture alphanumeric characters and spaces
+                bullet_text = re.sub(r'[^a-zA-Z0-9\s]', '', paragraph.text)
+                if bullet_text.strip():
+                    bullet_points.append(bullet_text)
 
         return bullet_points
 
