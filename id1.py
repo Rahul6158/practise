@@ -108,7 +108,7 @@ def main():
         except Exception as e:
             st.error(f"Translation error: {str(e)}")
             translated_text = None
-
+    
         # Display translated text
         if translated_text:
             st.subheader(f"Translated text ({target_language}):")
