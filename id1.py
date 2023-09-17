@@ -1,6 +1,7 @@
 import streamlit as st
 import docx
 from googletrans import Translator
+import re
 
 def extract_bullets_from_docx(docx_file):
     try:
@@ -10,7 +11,9 @@ def extract_bullets_from_docx(docx_file):
 
         for paragraph in doc.paragraphs:
             if paragraph.style.name.startswith('List Bullet'):
-                bullet_points.append(paragraph.text)
+                bullet_text = paragraph.text
+                bullet_text = re.sub(r'^[\s\*\-\•]+', '', bullet_text)  # Remove leading symbols
+                bullet_points.append(bullet_text)
 
         return bullet_points
 
