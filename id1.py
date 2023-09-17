@@ -28,11 +28,12 @@ def process_docx_text_without_lists(docx_file):
     return text
 
 # Function to translate text without using API (local translation)
+# Function to translate text without using API (local translation)
 def translate_text(text, target_language):
     try:
-        translator = Translator(to_lang=target_language)
-        translated_text = translator.translate(text)
-        return translated_text
+        translator = Translator()
+        translated_text = translator.translate(text, dest=target_language)
+        return translated_text.text
 
     except Exception as e:
         # Extract unexpected keyword arguments
@@ -46,6 +47,7 @@ def translate_text(text, target_language):
             error_message += f"\nUnexpected keyword arguments: {unexpected_kwargs}"
         
         return error_message
+
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
