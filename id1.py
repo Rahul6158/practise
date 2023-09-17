@@ -1,6 +1,6 @@
 import streamlit as st
 import docx
-import re
+from googletrans import Translator
 
 def extract_bullets_from_docx(docx_file):
     try:
@@ -10,18 +10,27 @@ def extract_bullets_from_docx(docx_file):
 
         for paragraph in doc.paragraphs:
             if paragraph.style.name.startswith('List Bullet'):
-                # Use regex to capture alphanumeric characters and spaces
-                bullet_text = re.sub(r'[^a-zA-Z0-9\s]', '', paragraph.text)
-                if bullet_text.strip():
-                    bullet_points.append(bullet_text)
+                bullet_points.append(paragraph.text)
 
         return bullet_points
 
     except Exception as e:
         return str(e)
 
+def translate_text(text, target_language):
+    try:
+        if text:
+            translator = Translator()
+            translated_text = translator.translate(text, dest=target_language)
+            return translated_text.text
+        else:
+            return ""
+
+    except Exception as e:
+        return str(e)
+
 def main():
-    st.title("Bullet Point Extractor from DOCX")
+    st.title("Bullet Point Extractor and Translator from DOCX")
 
     uploaded_file = st.file_uploader("Upload a DOCX file", type=["docx"])
 
@@ -35,6 +44,15 @@ def main():
             st.markdown("### Extracted Bullet Points:")
             for i, bullet_point in enumerate(bullet_points, start=1):
                 st.write(f"{i}. {bullet_point}")
+
+            target_language = st.text_input("Enter target language (e.g., 'en' for English):")
+
+            if st.button("Translate Text"):
+                translated_bullet_points = [translate_text(bp, target_language) for bp in bullet_points]
+
+                st.markdown("### Translated Bullet Points:")
+                for i, translated_bullet_point in enumerate(translated_bullet_points, start=1):
+                    st.write(f"{i}. {translated_bullet_point}")
         else:
             st.warning("No bullet points found in the DOCX file.")
 
