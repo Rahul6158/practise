@@ -162,15 +162,13 @@ def main():
     st.title("Text to Voice Converter")
 
     # Step 0: Input Text and Language Selection
-    input_text = st.text_input("Step 0: Enter text to convert:")
+    input_text = st.text_input("Enter text to convert:")
     input_language = st.selectbox("Select Language for Input Text", list(language_mapping.values()))
 
-    if input_text:
-        # Step 1: File Upload
-        uploaded_file = st.file_uploader("Step 1: Upload File (PDF, DOCX, or Image)", type=["pdf", "docx", "jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Step 1: Upload File (PDF, DOCX, or Image)", type=["pdf", "docx", "jpg", "jpeg", "png"])
 
         if uploaded_file:
-            st.subheader("Step 2: Extracted Text and Language Selection")
+            st.subheader("Extracted Text and Language Selection")
             
             # Determine the file format
             if uploaded_file.type == "application/pdf":
