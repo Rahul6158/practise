@@ -232,7 +232,7 @@ def main():
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 1000
             st.subheader('Select Language ti Translate : ')
-            target_language = st.selectbox(list(language_mapping.values()))
+            target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             # Check if the target language is in the mapping
             target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
