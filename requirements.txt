@@ -12,3 +12,4 @@ translate
 PyMuPDF
 pytesseract
 PyPDF2
+tesseract-ocr
