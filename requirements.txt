@@ -12,3 +12,4 @@ translate
 PyMuPDF
 pytesseract
 PIL
+PyPDF2
