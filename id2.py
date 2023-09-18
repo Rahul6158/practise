@@ -32,8 +32,8 @@ def process_docx_text_without_lists(docx_file):
 # Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
-    with pdf_file as pdf:
-        pdf_bytes = pdf.read()
+    with st.spinner("Extracting text from PDF..."):
+        pdf_bytes = pdf_file.read()
         pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
         for page_number in range(len(pdf_document)):
             page = pdf_document.load_page(page_number)
@@ -78,9 +78,61 @@ language_mapping = {
     "fr": "French",
     "de": "German",
     "it": "Italian",
-    # Add other languages as needed
+    "pt": "Portuguese",
+    "nl": "Dutch",
+    "hi": "Hindi",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh-cn": "Simplified Chinese",
+    "ru": "Russian",
+    "ar": "Arabic",
+    "th": "Thai",
+    "tr": "Turkish",
+    "pl": "Polish",
+    "cs": "Czech",
+    "sv": "Swedish",
+    "da": "Danish",
+    "fi": "Finnish",
+    "el": "Greek",
+    "hu": "Hungarian",
+    "uk": "Ukrainian",
+    "no": "Norwegian",
+    "id": "Indonesian",
+    "vi": "Vietnamese",
+    "ro": "Romanian",
+    "bn": "Bengali",
+    "fa": "Persian",
+    "iw": "Hebrew",
+    "bg": "Bulgarian",
+    "ca": "Catalan",
+    "hr": "Croatian",
+    "sr": "Serbian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "et": "Estonian",
+    "is": "Icelandic",
+    "ga": "Irish",
+    "sq": "Albanian",
+    "mk": "Macedonian",
+    "hy": "Armenian",
+    "ka": "Georgian",
+    "mt": "Maltese",
+    "mr": "Marathi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "ur": "Urdu",
+    "ne": "Nepali",
+    "si": "Sinhala",
+    "km": "Khmer",
+    "lo": "Lao",
+    "my": "Burmese",
+    "jw": "Javanese",
+    "mn": "Mongolian",
+    "zu": "Zulu",
+    "xh": "Xhosa"
 }
-
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
@@ -89,7 +141,7 @@ def main():
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
 
-    if uploaded_file is not None:
+ if uploaded_file is not None:
         file_extension = uploaded_file.name.split('.')[-1].lower()
 
         # Initialize text as None
@@ -127,7 +179,7 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Translate the extracted text using the translate library
+                # Translate the extracted text
                 try:
                     translated_text = translate_text(text, target_language_code)
                 except Exception as e:
