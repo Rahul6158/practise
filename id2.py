@@ -82,12 +82,22 @@ def count_words_in_text(text):
     return len(words)
 
 # Function to extract text from a PDF file
-def extract_text_from_pdf(pdf_file):
-    doc = fitz.open(pdf_file)
+# Function to extract text from a PDF file
+def extract_text_from_pdf(uploaded_pdf):
+    pdf_data = uploaded_pdf.read()
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_pdf_file:
+        temp_pdf_file.write(pdf_data)
+        temp_pdf_path = temp_pdf_file.name
+    
+    doc = fitz.open(temp_pdf_path)
     text = ""
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
         text += page.get_text()
+    
+    # Remove the temporary PDF file
+    os.remove(temp_pdf_path)
+    
     return text
 
 # Function to extract text from a DOCX file
