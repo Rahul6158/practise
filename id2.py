@@ -34,15 +34,14 @@ def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     try:
         with st.spinner("Extracting text from PDF..."):
-            pdf_reader = PyPDF2.PdfFileReader(pdf_file)
-            num_pages = pdf_reader.getNumPages()
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            num_pages = len(pdf_reader.pages)
             for page_number in range(num_pages):
-                page = pdf_reader.getPage(page_number)
-                pdf_text += page.extractText()
+                page = pdf_reader.pages[page_number]
+                pdf_text += page.extract_text()
     except Exception as e:
         st.error(f"Error processing PDF: {str(e)}")
     return pdf_text
-
 
 # Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
