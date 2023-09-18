@@ -8,6 +8,7 @@ import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
+import fitz 
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
