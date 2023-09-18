@@ -4,11 +4,11 @@ import base64
 import docx2txt
 from translate import Translator
 from gtts import gTTS
+import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
 import fitz  # PyMuPDF
-from translate.storage.tmx import tmxfile
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -40,12 +40,6 @@ def process_pdf_text_without_lists(pdf_file):
             pdf_text += page.get_text()
     return pdf_text
 
-# Function to extract text from an image using pytesseract
-def extract_text_from_image(image):
-    import pytesseract
-    text = pytesseract.image_to_string(image)
-    return text
-
 # Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
     translator = Translator(to_lang=target_language)
@@ -58,6 +52,7 @@ def translate_text(text, target_language):
         translated_text += translated_chunk
 
     return translated_text
+
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
@@ -85,8 +80,8 @@ def convert_word_doc_to_html(docx_file):
     soup = BeautifulSoup(txt, 'html.parser')
     return soup.prettify()
 
-# Function to translate text using the MyMemory translate library with a loop
-def translate_text_mymemory(text, target_language):
+# Function to translate text using the translate library with a loop
+def translate_text(text, target_language):
     translator = Translator(to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
@@ -99,17 +94,29 @@ def translate_text_mymemory(text, target_language):
     return translated_text
 
 # Function to translate text using Google Translate with a loop
-def translate_text_google(text, target_language):
-    translator = Translator(to_lang=target_language)
+def translate_text_with_google(text, target_language):
+    google_translator = GoogleTranslator()
+
     max_chunk_length = 500
     translated_text = ""
 
     for i in range(0, len(text), max_chunk_length):
         chunk = text[i:i + max_chunk_length]
-        translated_chunk = translator.translate(chunk)
+        translated_chunk = google_translator.translate(chunk, dest=target_language).text
         translated_text += translated_chunk
 
     return translated_text
+
+# Function to translate text with fallback to Google Translate on errors
+def translate_text_with_fallback(text, target_language):
+    try:
+        return translate_text(text, target_language)
+    except Exception as e:
+        st.warning(f"MyMemory translation error: {str(e)}")
+
+    # If MyMemory fails, use Google Translate
+    st.warning("Falling back to Google Translate...")
+    return translate_text_with_google(text, target_language)
 
 # Function to count words in the text
 def count_words(text):
@@ -191,7 +198,6 @@ def main():
 
         # Initialize text as None
         text = None
-        output_file = "translated_speech.mp3"  # Define output_file here
 
         if file_extension == "docx":
             # Display DOCX content
@@ -211,7 +217,7 @@ def main():
             st.write(text)
         elif file_extension == "txt":
             # Display TXT content
-            txt_text = uploaded_file.read().decode("utf-8")
+            txt_text = uploaded_file.read()
             text = txt_text
 
         if text is not None:
@@ -226,9 +232,8 @@ def main():
             if word_count > 1000:
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 1000
-
-            st.subheader('Select Language to Translate : ')
-            target_language = st.selectbox("Select target language:", list(language_mapping.values()))
+            st.subheader('Select Language ti Translate : ')
+            target_language = st.selectbox(list(language_mapping.values()))
 
             # Check if the target language is in the mapping
             target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
@@ -237,9 +242,9 @@ def main():
             if text and len(text.strip()) > 0:
                 # Translate the extracted text
                 try:
-                    translated_text = translate_text_mymemory(text, target_language_code)
+                    translated_text = translate_text(text, target_language_code)
                 except Exception as e:
-                    st.warning(f"Translation error: {str(e)}")
+                    st.error(f"Translation error: {str(e)}")
                     translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
@@ -254,12 +259,20 @@ def main():
 
             # Convert the translated text to speech
             if st.button("Convert to Speech and get Translated document"):
-                # Use the output_file defined at the beginning
+                output_file = "translated_speech.mp3"
                 convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
                 st.audio(audio_file.read(), format='audio/mp3')
+
+                # Play the generated speech (platform-dependent)
+                if os.name == 'posix':  # For Unix/Linux
+                    os.system(f"xdg-open {output_file}")
+                elif os.name == 'nt':  # For Windows
+                    os.system(f"start {output_file}")
+                else:
+                    st.warning("Unsupported operating system")
 
                 # Provide a download link for the MP3 file
                 st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
