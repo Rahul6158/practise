@@ -80,20 +80,13 @@ def convert_word_doc_to_html(docx_file):
 
 def translate_text_with_fallback(text, target_language):
     try:
-        return translate_text(text, target_language)
+        return translate_text_mymemory(text, target_language)
     except Exception as e:
         st.warning(f"MyMemory translation error: {str(e)}")
 
-    st.warning("Click the button below to translate using Google Translate:")
-
-    if st.button("Translate with Google Translate"):
-        try:
-            return translate_text_with_google(text, target_language)
-        except Exception as e:
-            st.error(f"Google Translate error: {str(e)}")
-
-    return "Translation failed. Please try again later."
-
+    # If MyMemory fails, use Google Translate
+    st.warning("Falling back to Google Translate...")
+    return translate_text_google(text, target_language)
 
 
 # Function to count words in the text
