@@ -8,7 +8,7 @@ import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
-import PyPDF2
+import fitz  # PyMuPDF
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -133,6 +133,7 @@ language_mapping = {
     "zu": "Zulu",
     "xh": "Xhosa"
 }
+
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
@@ -141,7 +142,7 @@ def main():
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
 
- if uploaded_file is not None:
+    if uploaded_file is not None:
         file_extension = uploaded_file.name.split('.')[-1].lower()
 
         # Initialize text as None
