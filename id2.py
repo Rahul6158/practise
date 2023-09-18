@@ -52,6 +52,19 @@ def translate_text(text, target_language):
 
     return translated_text
 
+# Function to translate text using the google translate library with a loop
+def translate_text_google(text, target_language):
+    translator = GoogleTranslator()
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk, dest=target_language)
+        translated_text += translated_chunk.text
+
+    return translated_text
+
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
     if text:
