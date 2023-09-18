@@ -9,6 +9,7 @@ from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
 import PyPDF2
+import pytesseract
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -19,6 +20,16 @@ def process_docx_text(docx_file, skip_lists=True):
     else:
         text = docx2txt.process(docx_file)
     return text
+
+def extract_text_from_image(image):
+    try:
+        # Convert the image to text using pytesseract
+        text = pytesseract.image_to_string(image)
+
+        return text
+    except Exception as e:
+        st.error(f"Error extracting text from image: {str(e)}")
+        return ""
 
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
