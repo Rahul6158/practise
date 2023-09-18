@@ -234,9 +234,10 @@ def main():
             st.image(img, caption="Uploaded Image", use_column_width=True)
 
             # Extract text from the image using custom function
-            text = extract_text_from_image(img)
+            image_bytes = uploaded_file.read()  # Read the image as bytes
+            extracted_text = extract_text_from_image(image_bytes)
             st.write("Text extracted from the image:")
-            st.write(text)
+            st.write(extracted_text)
         elif file_extension == "txt":
             # Display TXT content
             txt_text = uploaded_file.read()
@@ -254,7 +255,7 @@ def main():
             if word_count > 1000:
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 1000
-            st.subheader('Select Language ti Translate : ')
+            st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             # Check if the target language is in the mapping
