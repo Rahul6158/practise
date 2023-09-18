@@ -8,6 +8,7 @@ from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
 import fitz  # PyMuPDF
+from translate.storage.tmx import tmxfile
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -39,6 +40,12 @@ def process_pdf_text_without_lists(pdf_file):
             pdf_text += page.get_text()
     return pdf_text
 
+# Function to extract text from an image using pytesseract
+def extract_text_from_image(image):
+    import pytesseract
+    text = pytesseract.image_to_string(image)
+    return text
+
 # Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
     translator = Translator(to_lang=target_language)
@@ -49,19 +56,6 @@ def translate_text(text, target_language):
         chunk = text[i:i + max_chunk_length]
         translated_chunk = translator.translate(chunk)
         translated_text += translated_chunk
-
-    return translated_text
-
-# Function to translate text using the google translate library with a loop
-def translate_text_google(text, target_language):
-    translator = GoogleTranslator()
-    max_chunk_length = 500
-    translated_text = ""
-
-    for i in range(0, len(text), max_chunk_length):
-        chunk = text[i:i + max_chunk_length]
-        translated_chunk = translator.translate(chunk, dest=target_language)
-        translated_text += translated_chunk.text
 
     return translated_text
 
@@ -91,25 +85,9 @@ def convert_word_doc_to_html(docx_file):
     soup = BeautifulSoup(txt, 'html.parser')
     return soup.prettify()
 
-def translate_text_with_fallback(text, target_language):
-    try:
-        return translate_text_mymemory(text, target_language)
-    except Exception as e:
-        st.warning(f"MyMemory translation error: {str(e)}")
-
-    # If MyMemory fails, use Google Translate
-    st.warning("Falling back to Google Translate...")
-    try:
-        return translate_text_google(text, target_language)
-    except Exception as e:
-        st.error(f"Google Translate error: {str(e)}")
-
-    return "Translation failed. Please try again later."
-
-
 # Function to translate text using the MyMemory translate library with a loop
 def translate_text_mymemory(text, target_language):
-    translator = MyMemoryTranslator(to_lang=target_language)
+    translator = Translator(to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
 
@@ -122,18 +100,16 @@ def translate_text_mymemory(text, target_language):
 
 # Function to translate text using Google Translate with a loop
 def translate_text_google(text, target_language):
-    translator = GoogleTranslator()
+    translator = Translator(to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
 
     for i in range(0, len(text), max_chunk_length):
         chunk = text[i:i + max_chunk_length]
-        translated_chunk = translator.translate(chunk, dest=target_language)
-        translated_text += translated_chunk.text
+        translated_chunk = translator.translate(chunk)
+        translated_text += translated_chunk
 
     return translated_text
-    
-
 
 # Function to count words in the text
 def count_words(text):
@@ -235,7 +211,7 @@ def main():
             st.write(text)
         elif file_extension == "txt":
             # Display TXT content
-            txt_text = uploaded_file.read()
+            txt_text = uploaded_file.read().decode("utf-8")
             text = txt_text
 
         if text is not None:
@@ -261,9 +237,9 @@ def main():
             if text and len(text.strip()) > 0:
                 # Translate the extracted text
                 try:
-                    translated_text = translate_text_with_fallback(text, target_language_code)
+                    translated_text = translate_text_mymemory(text, target_language_code)
                 except Exception as e:
-                    st.error(f"Translation error: {str(e)}")
+                    st.warning(f"Translation error: {str(e)}")
                     translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
