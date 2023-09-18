@@ -30,7 +30,7 @@ if uploaded_file is not None:
         img = Image.open(uploaded_file)
         st.image(img, caption="Uploaded Image", use_column_width=True)
         
-        # Extract text from the image using pytesseract
+        # Extract text from the image using pytesseract's built-in OCR
         text = pytesseract.image_to_string(img)
         st.write("Text extracted from the image:")
         st.write(text)
