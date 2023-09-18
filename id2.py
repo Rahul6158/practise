@@ -155,6 +155,9 @@ def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
 
+    # Define output_file here
+    output_file = "translated_speech.mp3"
+
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
 
