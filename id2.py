@@ -12,65 +12,7 @@ import io
 
 # Language code mapping with full language names
 language_mapping = {
-    "en": "English",
-    "es": "Spanish",
-    "fr": "French",
-    "de": "German",
-    "it": "Italian",
-    "pt": "Portuguese",
-    "nl": "Dutch",
-    "hi": "Hindi",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "zh-cn": "Simplified Chinese",
-    "ru": "Russian",
-    "ar": "Arabic",
-    "th": "Thai",
-    "tr": "Turkish",
-    "pl": "Polish",
-    "cs": "Czech",
-    "sv": "Swedish",
-    "da": "Danish",
-    "fi": "Finnish",
-    "el": "Greek",
-    "hu": "Hungarian",
-    "uk": "Ukrainian",
-    "no": "Norwegian",
-    "id": "Indonesian",
-    "vi": "Vietnamese",
-    "ro": "Romanian",
-    "bn": "Bengali",
-    "fa": "Persian",
-    "iw": "Hebrew",
-    "bg": "Bulgarian",
-    "ca": "Catalan",
-    "hr": "Croatian",
-    "sr": "Serbian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "lt": "Lithuanian",
-    "lv": "Latvian",
-    "et": "Estonian",
-    "is": "Icelandic",
-    "ga": "Irish",
-    "sq": "Albanian",
-    "mk": "Macedonian",
-    "hy": "Armenian",
-    "ka": "Georgian",
-    "mt": "Maltese",
-    "mr": "Marathi",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "ur": "Urdu",
-    "ne": "Nepali",
-    "si": "Sinhala",
-    "km": "Khmer",
-    "lo": "Lao",
-    "my": "Burmese",
-    "jw": "Javanese",
-    "mn": "Mongolian",
-    "zu": "Zulu",
-    "xh": "Xhosa"
+    # ... (same as before)
 }
 
 # Function to convert text to speech and save as an MP3 file
@@ -122,9 +64,26 @@ def translate_text(text, target_language='en'):
 
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_content, file_format, language_code):
-    translated_filename = f"translated_{language_code}.{file_format}"
-    with open(translated_filename, 'wb') as f:
-        f.write(file_content.encode())
+    translated_filename = f"translated.{file_format}"
+    
+    if file_format == "pdf":
+        # Create a temporary PDF file for download
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_pdf_file:
+            temp_pdf_file.write(file_content.encode())
+            translated_filename = temp_pdf_file.name
+    elif file_format == "docx":
+        # Create a temporary DOCX file for download
+        doc = Document()
+        doc.add_paragraph(file_content)
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as temp_docx_file:
+            doc.save(temp_docx_file)
+            translated_filename = temp_docx_file.name
+    elif file_format in ["jpg", "jpeg", "png"]:
+        # For images, create a text file with the translated text
+        translated_filename = f"translated.{file_format}.txt"
+        with open(translated_filename, "w", encoding="utf-8") as txt_file:
+            txt_file.write(file_content)
+    
     with open(translated_filename, 'rb') as f:
         file_data = f.read()
     b64_file = base64.b64encode(file_data).decode()
@@ -171,8 +130,8 @@ def main():
         st.write(f"Translated File Content ({selected_language_code}):")
         st.write(translated_file_text)
 
-        # Provide download button for the translated content
-        st.markdown(get_binary_file_downloader_html(f'Download Translated ({selected_language_code})', translated_file_text, 'txt', selected_language_code), unsafe_allow_html=True)
+        # Provide download button for the translated content in the uploaded source file format
+        st.markdown(get_binary_file_downloader_html(f'Download Translated ({selected_language_code})', translated_file_text, uploaded_file.type.split("/")[-1], selected_language_code), unsafe_allow_html=True)
 
 # Run the Streamlit app
 if __name__ == "__main__":
