@@ -79,7 +79,7 @@ def translate_text_with_fallback(text, target_language):
 
     if st.button("Translate with Google Translate"):
         try:
-            return translate_text_with_google(text, target_language)
+            return translate_text_google(text, target_language)
         except Exception as e:
             st.error(f"Google Translate error: {str(e)}")
 
