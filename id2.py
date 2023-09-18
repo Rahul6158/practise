@@ -105,6 +105,7 @@ def translate_text_with_fallback(text, target_language):
         st.error(f"Google Translate error: {str(e)}")
 
     return "Translation failed. Please try again later."
+    
 
 
 # Function to count words in the text
