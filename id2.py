@@ -33,9 +33,11 @@ def process_docx_text_without_lists(docx_file):
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     with pdf_file as pdf:
-        pdf_reader = PdfReader(pdf)
-        for page in pdf_reader.pages:
-            pdf_text += page.extract_text()
+        pdf_bytes = pdf.read()
+        pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
+        for page_number in range(len(pdf_document)):
+            page = pdf_document.load_page(page_number)
+            pdf_text += page.get_text()
     return pdf_text
 
 # Function to translate text using the translate library
