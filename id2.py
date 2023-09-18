@@ -3,7 +3,9 @@ from gtts import gTTS
 import tempfile
 import os
 import base64
-import docx  # Import the docx module for word counting
+import fitz  # PyMuPDF for PDF extraction
+import pytesseract  # For OCR text extraction from images
+from googletrans import Translator  # For translation
 
 # Language code mapping with full language names
 language_mapping = {
@@ -78,6 +80,26 @@ def count_words_in_text(text):
     words = text.split()
     return len(words)
 
+# Function to extract text from a PDF file
+def extract_text_from_pdf(pdf_file):
+    doc = fitz.open(pdf_file)
+    text = ""
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+# Function to extract text from an image using OCR
+def extract_text_from_image(image_file):
+    text = pytesseract.image_to_string(image_file)
+    return text
+
+# Function to translate text
+def translate_text(text, target_language='en'):
+    translator = Translator()
+    translated_text = translator.translate(text, dest=target_language)
+    return translated_text.text
+
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_path, file_format):
     with open(file_path, 'rb') as f:
@@ -125,6 +147,30 @@ def main():
         # Count and display the number of words in the input text
         word_count = count_words_in_text(text)
         st.write(f"Number of words in the input text: {word_count}")
+
+    # Add file upload options
+    uploaded_pdf = st.file_uploader("Upload PDF", type=["pdf"])
+    uploaded_image = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
+
+    if uploaded_pdf:
+        pdf_text = extract_text_from_pdf(uploaded_pdf)
+        st.write("PDF Content:")
+        st.write(pdf_text)
+
+        # Translate PDF content
+        translated_pdf_text = translate_text(pdf_text)
+        st.write("Translated PDF Content:")
+        st.write(translated_pdf_text)
+
+    if uploaded_image:
+        image_text = extract_text_from_image(uploaded_image)
+        st.write("Image Content:")
+        st.write(image_text)
+
+        # Translate image content
+        translated_image_text = translate_text(image_text)
+        st.write("Translated Image Content:")
+        st.write(translated_image_text)
 
 # Run the Streamlit app
 if __name__ == "__main__":
