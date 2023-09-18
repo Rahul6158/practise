@@ -12,3 +12,4 @@ PyMuPDF
 pytesseract
 PyPDF2
 fitz
+easyocr
