@@ -4,7 +4,6 @@ import base64
 import docx2txt
 from translate import Translator
 from gtts import gTTS
-import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -52,7 +51,6 @@ def translate_text(text, target_language):
         translated_text += translated_chunk
 
     return translated_text
-
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
