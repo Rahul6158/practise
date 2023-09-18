@@ -1,11 +1,12 @@
 import streamlit as st
 import io
 from PIL import Image
+import pytesseract
 import PyPDF2
 import docx2txt
 
 # Create a Streamlit app
-st.title("File Uploader")
+st.title("File Uploader with OCR")
 
 # Create an uploader widget
 uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
@@ -28,6 +29,11 @@ if uploaded_file is not None:
         # Display image
         img = Image.open(uploaded_file)
         st.image(img, caption="Uploaded Image", use_column_width=True)
+        
+        # Extract text from the image using pytesseract
+        text = pytesseract.image_to_string(img)
+        st.write("Text extracted from the image:")
+        st.write(text)
     elif file_extension == "txt":
         # Display TXT content
         txt_text = uploaded_file.read()
