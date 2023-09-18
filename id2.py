@@ -9,6 +9,7 @@ from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
 import fitz  # PyMuPDF
+from googletrans import Translator as GoogleTranslator
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -41,47 +42,7 @@ def process_pdf_text_without_lists(pdf_file):
     return pdf_text
 
 # Function to translate text using the translate library with a loop
-def translate_text(text, target_language):
-    translator = Translator(to_lang=target_language)
-    max_chunk_length = 500
-    translated_text = ""
-
-    for i in range(0, len(text), max_chunk_length):
-        chunk = text[i:i + max_chunk_length]
-        translated_chunk = translator.translate(chunk)
-        translated_text += translated_chunk
-
-    return translated_text
-
-
-# Function to convert text to speech and save as an MP3 file
-def convert_text_to_speech(text, output_file, language='en'):
-    if text:
-        tts = gTTS(text=text, lang=language)
-        tts.save(output_file)
-
-# Function to generate a download link for a file
-def get_binary_file_downloader_html(link_text, file_path, file_format):
-    with open(file_path, 'rb') as f:
-        file_data = f.read()
-    b64_file = base64.b64encode(file_data).decode()
-    download_link = f'<a href="data:{file_format};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
-    return download_link
-
-# Function to convert translated text to a Word document
-def convert_text_to_word_doc(text, output_file):
-    doc = Document()
-    doc.add_paragraph(text)
-    doc.save(output_file)
-
-# Function to convert Word document to HTML
-def convert_word_doc_to_html(docx_file):
-    txt = docx2txt.process(docx_file)
-    soup = BeautifulSoup(txt, 'html.parser')
-    return soup.prettify()
-
-# Function to translate text using the translate library with a loop
-def translate_text(text, target_language):
+def translate_text_mymemory(text, target_language):
     translator = Translator(to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
@@ -94,7 +55,7 @@ def translate_text(text, target_language):
     return translated_text
 
 # Function to translate text using Google Translate with a loop
-def translate_text_with_google(text, target_language):
+def translate_text_google(text, target_language):
     google_translator = GoogleTranslator()
 
     max_chunk_length = 500
@@ -110,13 +71,13 @@ def translate_text_with_google(text, target_language):
 # Function to translate text with fallback to Google Translate on errors
 def translate_text_with_fallback(text, target_language):
     try:
-        return translate_text(text, target_language)
+        return translate_text_mymemory(text, target_language)
     except Exception as e:
         st.warning(f"MyMemory translation error: {str(e)}")
 
     # If MyMemory fails, use Google Translate
     st.warning("Falling back to Google Translate...")
-    return translate_text_with_google(text, target_language)
+    return translate_text_google(text, target_language)
 
 # Function to count words in the text
 def count_words(text):
@@ -184,7 +145,6 @@ language_mapping = {
     "zu": "Zulu",
     "xh": "Xhosa"
 }
-
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
@@ -232,8 +192,9 @@ def main():
             if word_count > 1000:
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 1000
-            st.subheader('Select Language to Translate : ')
-            target_language = st.selectbox('here',list(language_mapping.values()))
+
+            st.subheader('Select Language to Translate:')
+            target_language = st.selectbox(list(language_mapping.values()))
 
             # Check if the target language is in the mapping
             target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
@@ -241,11 +202,7 @@ def main():
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
                 # Translate the extracted text
-                try:
-                    translated_text = translate_text(text, target_language_code)
-                except Exception as e:
-                    st.error(f"Translation error: {str(e)}")
-                    translated_text = None
+                translated_text = translate_text_with_fallback(text, target_language_code)
             else:
                 st.warning("Input text is empty. Please check your document.")
                 translated_text = None
@@ -258,7 +215,7 @@ def main():
                 st.warning("Translation result is empty. Please check your input text.")
 
             # Convert the translated text to speech
-            if st.button("Convert to Speech and get Translated document"):
+            if st.button("Convert to Speech and Get Translated Document"):
                 output_file = "translated_speech.mp3"
                 convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
