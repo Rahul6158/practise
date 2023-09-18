@@ -9,6 +9,7 @@ from googletrans import Translator
 from docx import Document
 from PIL import Image
 import io
+from translate import Translator as TranslateTranslator
 
 # Language code mapping with full language names
 language_mapping = {
@@ -117,9 +118,9 @@ def extract_text_from_docx(docx_file):
 
 # Function to translate text
 def translate_text(text, target_language='en'):
-    translator = Translator()
-    translated_text = translator.translate(text, dest=target_language)
-    return translated_text.text
+    translator = TranslateTranslator(to_lang=target_language)
+    translated_text = translator.translate(text)
+    return translated_text
 
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_content, file_format, language_code):
