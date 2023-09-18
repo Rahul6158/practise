@@ -80,6 +80,22 @@ def convert_word_doc_to_html(docx_file):
     soup = BeautifulSoup(txt, 'html.parser')
     return soup.prettify()
 
+def translate_text_with_fallback(text, target_language):
+    try:
+        return translate_text(text, target_language)
+    except Exception as e:
+        st.warning(f"MyMemory translation error: {str(e)}")
+
+    st.warning("Click the button below to translate using Google Translate:")
+
+    if st.button("Translate with Google Translate"):
+        try:
+            return translate_text_google(text, target_language)
+        except Exception as e:
+            st.error(f"Google Translate error: {str(e)}")
+
+    return "Translation failed. Please try again later."
+
 # Function to count words in the text
 def count_words(text):
     words = text.split()
