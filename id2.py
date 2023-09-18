@@ -7,6 +7,8 @@ from gtts import gTTS
 import io
 from docx import Document
 from bs4 import BeautifulSoup
+from PIL import Image
+import fitz  # PyMuPDF
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -25,6 +27,15 @@ def process_docx_text_without_lists(docx_file):
     for paragraph in doc.paragraphs:
         if not paragraph.style.name.startswith('•'):
             text += paragraph.text + '\n'
+    return text
+
+# Function to extract text from a PDF file
+def process_pdf_text_without_lists(pdf_file):
+    text = ""
+    pdf_document = fitz.open(stream=pdf_file.read(), filetype="pdf")
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document.load_page(page_num)
+        text += page.get_text()
     return text
 
 # Function to translate text using the translate library
