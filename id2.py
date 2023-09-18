@@ -80,6 +80,45 @@ def convert_word_doc_to_html(docx_file):
     soup = BeautifulSoup(txt, 'html.parser')
     return soup.prettify()
 
+# Function to translate text using the translate library with a loop
+def translate_text(text, target_language):
+    translator = Translator(to_lang=target_language)
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk)
+        translated_text += translated_chunk
+
+    return translated_text
+
+# Function to translate text using Google Translate with a loop
+def translate_text_with_google(text, target_language):
+    google_translator = GoogleTranslator()
+
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = google_translator.translate(chunk, dest=target_language).text
+        translated_text += translated_chunk
+
+    return translated_text
+
+# Function to translate text with fallback to Google Translate on errors
+def translate_text_with_fallback(text, target_language):
+    try:
+        return translate_text(text, target_language)
+    except Exception as e:
+        st.warning(f"MyMemory translation error: {str(e)}")
+
+    # If MyMemory fails, use Google Translate
+    st.warning("Falling back to Google Translate...")
+    return translate_text_with_google(text, target_language)
+
+
 language_mapping = {
     "en": "English",
     "es": "Spanish",
@@ -188,12 +227,8 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Translate the extracted text
-                try:
-                    translated_text = translate_text(text, target_language_code)
-                except Exception as e:
-                    st.error(f"Translation error: {str(e)}")
-                    translated_text = None
+                # Translate the extracted text with fallback to Google Translate
+                translated_text = translate_text_with_fallback(text, target_language_code)
             else:
                 st.warning("Input text is empty. Please check your document.")
                 translated_text = None
@@ -233,3 +268,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
