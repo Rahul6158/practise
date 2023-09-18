@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import PyPDF2
 import pytesseract
+import easyocr
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -21,15 +22,21 @@ def process_docx_text(docx_file, skip_lists=True):
         text = docx2txt.process(docx_file)
     return text
 
+# Function to extract text from an image using easyocr
 def extract_text_from_image(image):
     try:
-        # Convert the image to text using pytesseract
-        text = pytesseract.image_to_string(image)
+        reader = easyocr.Reader(['en'])  # Specify the language(s) you want to recognize
+        results = reader.readtext(image)
 
-        return text
+        text = ""
+        for (bbox, text, prob) in results:
+            text += text + " "
+
+        return text.strip()
     except Exception as e:
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
+
 
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
