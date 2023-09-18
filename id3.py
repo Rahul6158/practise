@@ -2,6 +2,7 @@ import streamlit as st
 import docx
 from docx.shared import Length
 
+# Function to remove non-string objects from a DOCX file
 def remove_non_string_objects(docx_file):
     try:
         doc = docx.Document(docx_file)
@@ -21,22 +22,24 @@ def remove_non_string_objects(docx_file):
                         new_run.font.color.rgb = run.font.color.rgb
                         # You can copy other run properties as needed
 
-            elif isinstance(element, docx.oxml.text.Table):
-                # Handle tables (you can skip or process them as needed)
-                new_table = new_doc.add_table(rows=element.rows, cols=element.cols)
-                for i, row in enumerate(element.rows):
-                    for j, cell in enumerate(row.cells):
-                        new_table.cell(i, j).text = cell.text
-                        # You can copy cell properties as needed
-
         # Save the modified document to a new file
-        new_doc.save("document_without_non_string.docx")
+        output_file_path = "document_without_non_string.docx"
+        new_doc.save(output_file_path)
         
-        return "document_without_non_string.docx"
+        return output_file_path
 
     except Exception as e:
         return str(e)
 
+# Function to generate a download link for a file
+def get_binary_file_downloader_html(link_text, file_path, mime_type='application/docx'):
+    with open(file_path, 'rb') as f:
+        file_data = f.read()
+    b64_file = base64.b64encode(file_data).decode()
+    download_link = f'<a href="data:{mime_type};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
+    return download_link
+
+# Main Streamlit app
 def main():
     st.title("Non-String Object Remover in DOCX")
 
@@ -50,7 +53,7 @@ def main():
 
         if isinstance(result, str):
             st.success("Non-string objects removed successfully.")
-            st.markdown(get_binary_file_downloader_html("Download Modified DOCX", result, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+            st.markdown(get_binary_file_downloader_html("Download Modified DOCX", result), unsafe_allow_html=True)
         else:
             st.error("Failed to process the DOCX file. Error: " + result)
 
