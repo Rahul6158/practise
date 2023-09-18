@@ -8,7 +8,7 @@ import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
-import fitz 
+import PyPDF2
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -34,11 +34,11 @@ def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     try:
         with st.spinner("Extracting text from PDF..."):
-            pdf_bytes = pdf_file.read()
-            pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
-            for page_number in range(len(pdf_document)):
-                page = pdf_document.load_page(page_number)
-                pdf_text += page.get_text()
+            pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+            num_pages = pdf_reader.getNumPages()
+            for page_number in range(num_pages):
+                page = pdf_reader.getPage(page_number)
+                pdf_text += page.extractText()
     except Exception as e:
         st.error(f"Error processing PDF: {str(e)}")
     return pdf_text
