@@ -7,8 +7,10 @@ import fitz  # PyMuPDF for PDF extraction
 import pytesseract  # For OCR text extraction from images
 from googletrans import Translator  # For translation
 from docx import Document  # For DOCX processing
+from PIL import Image
+import io
 
-# Language code mapping with full language names
+pping with full language names
 language_mapping = {
     "en": "English",
     "es": "Spanish",
@@ -98,6 +100,17 @@ def extract_text_from_pdf(uploaded_pdf):
     # Remove the temporary PDF file
     os.remove(temp_pdf_path)
     
+    return text
+
+
+# Function to extract text from an image using OCR
+def extract_text_from_image(uploaded_image):
+# Convert the uploaded image file to binary data
+    image_data = uploaded_image.read()
+ # Open the image using PIL (Pillow)
+    img = Image.open(io.BytesIO(image_data))
+ # Perform OCR on the image and extract text
+    text = pytesseract.image_to_string(img)
     return text
 
 # Function to extract text from a DOCX file
