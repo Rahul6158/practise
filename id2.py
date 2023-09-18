@@ -84,14 +84,14 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"MyMemory translation error: {str(e)}")
         
-        if(e):
-          if st.button("Translate with Google Translate"):
+        if st.button("Translate with Google Translate"):
             try:
                 return translate_text_google(text, target_language)
             except Exception as e:
                 st.error(f"Google Translate error: {str(e)}")
 
         return "Translation failed. Please try again later."
+
 
 
 # Function to count words in the text
