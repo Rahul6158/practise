@@ -11,6 +11,7 @@ from PIL import Image
 import PyPDF2
 import pytesseract
 import easyocr
+from PIL import Image
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -23,8 +24,9 @@ def process_docx_text(docx_file, skip_lists=True):
     return text
 
 # Function to extract text from an image using easyocr
-def extract_text_from_image(image):
+def extract_text_from_image(image_bytes):
     try:
+        image = Image.open(io.BytesIO(image_bytes))
         reader = easyocr.Reader(['en'])  # Specify the language(s) you want to recognize
         results = reader.readtext(image)
 
@@ -36,7 +38,6 @@ def extract_text_from_image(image):
     except Exception as e:
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
-
 
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
