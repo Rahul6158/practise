@@ -7,6 +7,8 @@ from gtts import gTTS
 import io
 from docx import Document
 from bs4 import BeautifulSoup
+from PIL import Image
+import PyPDF2
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -26,6 +28,18 @@ def process_docx_text_without_lists(docx_file):
         if not paragraph.style.name.startswith('•'):
             text += paragraph.text + '\n'
     return text
+
+# Function to extract text from a PDF file without lists
+def process_pdf_text_without_lists(pdf_file):
+    pdf_text = ""
+    with pdf_file as pdf:
+        pdf_reader = PyPDF2.PdfFileReader(pdf)
+        num_pages = pdf_reader.getNumPages()
+        for page_num in range(num_pages):
+            page = pdf_reader.getPage(page_num)
+            page_text = page.extract_text()
+            pdf_text += page_text
+    return pdf_text
 
 # Function to translate text using the translate library
 def translate_text(text, target_language):
@@ -65,60 +79,7 @@ language_mapping = {
     "fr": "French",
     "de": "German",
     "it": "Italian",
-    "pt": "Portuguese",
-    "nl": "Dutch",
-    "hi": "Hindi",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "zh-cn": "Simplified Chinese",
-    "ru": "Russian",
-    "ar": "Arabic",
-    "th": "Thai",
-    "tr": "Turkish",
-    "pl": "Polish",
-    "cs": "Czech",
-    "sv": "Swedish",
-    "da": "Danish",
-    "fi": "Finnish",
-    "el": "Greek",
-    "hu": "Hungarian",
-    "uk": "Ukrainian",
-    "no": "Norwegian",
-    "id": "Indonesian",
-    "vi": "Vietnamese",
-    "ro": "Romanian",
-    "bn": "Bengali",
-    "fa": "Persian",
-    "iw": "Hebrew",
-    "bg": "Bulgarian",
-    "ca": "Catalan",
-    "hr": "Croatian",
-    "sr": "Serbian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "lt": "Lithuanian",
-    "lv": "Latvian",
-    "et": "Estonian",
-    "is": "Icelandic",
-    "ga": "Irish",
-    "sq": "Albanian",
-    "mk": "Macedonian",
-    "hy": "Armenian",
-    "ka": "Georgian",
-    "mt": "Maltese",
-    "mr": "Marathi",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "ur": "Urdu",
-    "ne": "Nepali",
-    "si": "Sinhala",
-    "km": "Khmer",
-    "lo": "Lao",
-    "my": "Burmese",
-    "jw": "Javanese",
-    "mn": "Mongolian",
-    "zu": "Zulu",
-    "xh": "Xhosa"
+    # Add other languages as needed
 }
 
 # Main Streamlit app
@@ -167,21 +128,12 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Split the text into smaller chunks
-                chunk_size = 500  # Adjust this based on the translation service's query length limit
-                chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
-
-                # Translate each chunk separately and combine the results
-                translated_chunks = []
-                for chunk in chunks:
-                    try:
-                        translated_chunk = translate_text(chunk, target_language_code)
-                        translated_chunks.append(translated_chunk)
-                    except Exception as e:
-                        st.error(f"Translation error: {str(e)}")
-                
-                # Combine translated chunks into the full translated text
-                translated_text = ' '.join(translated_chunks)
+                # Translate the extracted text using the translate library
+                try:
+                    translated_text = translate_text(text, target_language_code)
+                except Exception as e:
+                    st.error(f"Translation error: {str(e)}")
+                    translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
                 translated_text = None
