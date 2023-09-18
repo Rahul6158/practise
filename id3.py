@@ -2,6 +2,14 @@ import streamlit as st
 import docx
 from io import BytesIO
 
+def is_non_string_element(element):
+    """
+    Check if an element is non-string (e.g., tables, images, shapes).
+    """
+    if isinstance(element, docx.oxml.text.paragraph.CT_P):
+        return False
+    return True
+
 def remove_non_string_objects(docx_file):
     try:
         doc = docx.Document(docx_file)
@@ -11,10 +19,11 @@ def remove_non_string_objects(docx_file):
 
         for element in doc.element.body:
             try:
-                if isinstance(element, docx.oxml.text.paragraph.CT_P):
-                    # Check if the element is a paragraph
+                if not is_non_string_element(element):
+                    # Process only string elements (paragraphs)
+                    paragraph = element
                     new_paragraph = cleaned_doc.add_paragraph()
-                    for run in element.runs:
+                    for run in paragraph.runs:
                         if run.text.strip():
                             # Add runs with non-empty text to the cleaned paragraph
                             new_run = new_paragraph.add_run(run.text)
@@ -23,9 +32,6 @@ def remove_non_string_objects(docx_file):
                             new_run.italic = run.italic
                             # You can copy other formatting attributes as needed
 
-                elif not isinstance(element, docx.oxml.text.Run):
-                    # If the element is not a paragraph, copy it to the cleaned document
-                    cleaned_doc.element.body.append(element)
             except Exception as e:
                 st.error(f"Error processing the following element: {element}")
                 raise e
@@ -60,4 +66,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
