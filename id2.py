@@ -31,13 +31,17 @@ def process_docx_text_without_lists(docx_file):
 # Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
-    with st.spinner("Extracting text from PDF..."):
-        pdf_bytes = pdf_file.read()
-        pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
-        for page_number in range(len(pdf_document)):
-            page = pdf_document.load_page(page_number)
-            pdf_text += page.get_text()
+    try:
+        with st.spinner("Extracting text from PDF..."):
+            pdf_bytes = pdf_file.read()
+            pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
+            for page_number in range(len(pdf_document)):
+                page = pdf_document.load_page(page_number)
+                pdf_text += page.get_text()
+    except Exception as e:
+        st.error(f"Error processing PDF: {str(e)}")
     return pdf_text
+
 
 # Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
