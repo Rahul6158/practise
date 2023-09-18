@@ -1,6 +1,8 @@
 import streamlit as st
 import docx
 from docx.shared import Length
+import base64
+import os
 
 # Function to remove non-string objects from a DOCX file
 def remove_non_string_objects(docx_file):
@@ -33,11 +35,14 @@ def remove_non_string_objects(docx_file):
 
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_path, mime_type='application/docx'):
-    with open(file_path, 'rb') as f:
-        file_data = f.read()
-    b64_file = base64.b64encode(file_data).decode()
-    download_link = f'<a href="data:{mime_type};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
-    return download_link
+    try:
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+        b64_file = base64.b64encode(file_data).decode()
+        download_link = f'<a href="data:{mime_type};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
+        return download_link
+    except Exception as e:
+        return str(e)
 
 # Main Streamlit app
 def main():
@@ -53,7 +58,8 @@ def main():
 
         if isinstance(result, str):
             st.success("Non-string objects removed successfully.")
-            st.markdown(get_binary_file_downloader_html("Download Modified DOCX", result), unsafe_allow_html=True)
+            download_link = get_binary_file_downloader_html("Download Modified DOCX", result)
+            st.markdown(download_link, unsafe_allow_html=True)
         else:
             st.error("Failed to process the DOCX file. Error: " + result)
 
