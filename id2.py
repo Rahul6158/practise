@@ -83,6 +83,8 @@ def translate_text_with_fallback(text, target_language):
         return translate_text(text, target_language)
     except Exception as e:
         st.warning(f"MyMemory translation error: {str(e)}")
+        st.warning("You've used all available free translations for today.")
+        st.write("Next available in 13 hours. You can visit [this link](https://mymemory.translated.net/doc/usagelimits.php) for more information.")
         
         if st.button("Translate with Google Translate"):
             try:
@@ -91,6 +93,7 @@ def translate_text_with_fallback(text, target_language):
                 st.error(f"Google Translate error: {str(e)}")
 
         return "Translation failed. Please try again later."
+
 
 
 
