@@ -39,6 +39,7 @@ def extract_text_from_image(image_bytes):
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
 
+
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
     doc = Document(docx_file)
