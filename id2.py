@@ -40,11 +40,19 @@ def process_pdf_text_without_lists(pdf_file):
             pdf_text += page.get_text()
     return pdf_text
 
-# Function to translate text using the translate library
+# Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
     translator = Translator(to_lang=target_language)
-    translated_text = translator.translate(text)
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk)
+        translated_text += translated_chunk
+
     return translated_text
+
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
@@ -159,7 +167,7 @@ def main():
             # Display image
             img = Image.open(uploaded_file)
             st.image(img, caption="Uploaded Image", use_column_width=True)
-            
+
             # Extract text from the image using custom function
             text = extract_text_from_image(img)
             st.write("Text extracted from the image:")
