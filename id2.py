@@ -7,8 +7,6 @@ from gtts import gTTS
 import io
 from docx import Document
 from bs4 import BeautifulSoup
-from PIL import Image
-import fitz  # PyMuPDF
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -27,15 +25,6 @@ def process_docx_text_without_lists(docx_file):
     for paragraph in doc.paragraphs:
         if not paragraph.style.name.startswith('•'):
             text += paragraph.text + '\n'
-    return text
-
-# Function to extract text from a PDF file
-def process_pdf_text_without_lists(pdf_file):
-    text = ""
-    pdf_document = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    for page_num in range(pdf_document.page_count):
-        page = pdf_document.load_page(page_num)
-        text += page.get_text()
     return text
 
 # Function to translate text using the translate library
@@ -178,12 +167,21 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Translate the extracted text using the translate library
-                try:
-                    translated_text = translate_text(text, target_language_code)
-                except Exception as e:
-                    st.error(f"Translation error: {str(e)}")
-                    translated_text = None
+                # Split the text into smaller chunks
+                chunk_size = 500  # Adjust this based on the translation service's query length limit
+                chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+
+                # Translate each chunk separately and combine the results
+                translated_chunks = []
+                for chunk in chunks:
+                    try:
+                        translated_chunk = translate_text(chunk, target_language_code)
+                        translated_chunks.append(translated_chunk)
+                    except Exception as e:
+                        st.error(f"Translation error: {str(e)}")
+                
+                # Combine translated chunks into the full translated text
+                translated_text = ' '.join(translated_chunks)
             else:
                 st.warning("Input text is empty. Please check your document.")
                 translated_text = None
