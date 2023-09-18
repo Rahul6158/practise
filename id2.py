@@ -33,12 +33,9 @@ def process_docx_text_without_lists(docx_file):
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     with pdf_file as pdf:
-        pdf_reader = PyPDF2.PdfFileReader(pdf)
-        num_pages = pdf_reader.getNumPages()
-        for page_num in range(num_pages):
-            page = pdf_reader.getPage(page_num)
-            page_text = page.extract_text()
-            pdf_text += page_text
+        pdf_reader = PdfReader(pdf)
+        for page in pdf_reader.pages:
+            pdf_text += page.extract_text()
     return pdf_text
 
 # Function to translate text using the translate library
