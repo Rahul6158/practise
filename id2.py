@@ -74,9 +74,10 @@ language_mapping = {
 }
 
 # Function to convert text to speech and save as an MP3 file
-def convert_text_to_speech(text, output_file, language='en', slow=False):
-    tts = gTTS(text=text, lang=language, slow=slow)
-    tts.save(output_file)
+def convert_text_to_speech(text, output_file, language='en'):
+    if text:
+        tts = gTTS(text=text, lang=language)
+        tts.save(output_file)
 
 # Function to count words in input text
 def count_words_in_text(text):
@@ -148,6 +149,12 @@ def get_binary_file_downloader_html(link_text, file_content, file_format, langua
     download_link = f'<a href="data:{file_format};base64,{b64_file}" download="{translated_filename}">{link_text}</a>'
     return download_link
 
+# Function to convert translated text to speech and save as an MP3 file
+def convert_translated_text_to_speech(text, output_file, language='en'):
+    if text:
+        tts = gTTS(text=text, lang=language)
+        tts.save(output_file)
+
 # Define the Streamlit app
 def main():
     st.image("jangirii.png", width=100)
@@ -187,6 +194,13 @@ def main():
         translated_file_text = translate_text(file_text, target_language=selected_language_code)
         st.write(f"Translated File Content ({selected_language_code}):")
         st.write(translated_file_text)
+
+        # Convert translated text to speech
+        converted_speech_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        convert_translated_text_to_speech(translated_file_text, converted_speech_file.name, language=selected_language_code)
+
+        # Play the translated speech
+        st.audio(converted_speech_file.name, format='audio/mp3')
 
         # Provide download button for the translated content in the uploaded source file format
         st.markdown(get_binary_file_downloader_html(f'Download Translated ({selected_language_code})', translated_file_text, uploaded_file.type.split("/")[-1], selected_language_code), unsafe_allow_html=True)
