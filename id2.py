@@ -10,7 +10,7 @@ from docx import Document  # For DOCX processing
 from PIL import Image
 import io
 
-pping with full language names
+# Language code mapping with full language names
 language_mapping = {
     "en": "English",
     "es": "Spanish",
@@ -84,7 +84,6 @@ def count_words_in_text(text):
     return len(words)
 
 # Function to extract text from a PDF file
-# Function to extract text from a PDF file
 def extract_text_from_pdf(uploaded_pdf):
     pdf_data = uploaded_pdf.read()
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_pdf_file:
@@ -102,14 +101,10 @@ def extract_text_from_pdf(uploaded_pdf):
     
     return text
 
-
 # Function to extract text from an image using OCR
 def extract_text_from_image(uploaded_image):
-# Convert the uploaded image file to binary data
     image_data = uploaded_image.read()
- # Open the image using PIL (Pillow)
     img = Image.open(io.BytesIO(image_data))
- # Perform OCR on the image and extract text
     text = pytesseract.image_to_string(img)
     return text
 
@@ -119,11 +114,6 @@ def extract_text_from_docx(docx_file):
     text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
     return text
 
-# Function to extract text from an image using OCR
-def extract_text_from_image(image_file):
-    text = pytesseract.image_to_string(image_file)
-    return text
-
 # Function to translate text
 def translate_text(text, target_language='en'):
     translator = Translator()
@@ -131,11 +121,14 @@ def translate_text(text, target_language='en'):
     return translated_text.text
 
 # Function to generate a download link for a file
-def get_binary_file_downloader_html(link_text, file_path, file_format):
-    with open(file_path, 'rb') as f:
+def get_binary_file_downloader_html(link_text, file_content, file_format, language_code):
+    translated_filename = f"translated_{language_code}.{file_format}"
+    with open(translated_filename, 'wb') as f:
+        f.write(file_content.encode())
+    with open(translated_filename, 'rb') as f:
         file_data = f.read()
     b64_file = base64.b64encode(file_data).decode()
-    download_link = f'<a href="data:{file_format};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
+    download_link = f'<a href="data:{file_format};base64,{b64_file}" download="{translated_filename}">{link_text}</a>'
     return download_link
 
 # Define the Streamlit app
@@ -172,10 +165,14 @@ def main():
         st.write("File Content:")
         st.write(file_text)
 
-        # Translate file content
-        translated_file_text = translate_text(file_text)
-        st.write("Translated File Content:")
+        # Translate file content to the selected language
+        selected_language_code = language.split(" ")[-1][1:-1]
+        translated_file_text = translate_text(file_text, target_language=selected_language_code)
+        st.write(f"Translated File Content ({selected_language_code}):")
         st.write(translated_file_text)
+
+        # Provide download button for the translated content
+        st.markdown(get_binary_file_downloader_html(f'Download Translated ({selected_language_code})', translated_file_text, 'txt', selected_language_code), unsafe_allow_html=True)
 
 # Run the Streamlit app
 if __name__ == "__main__":
