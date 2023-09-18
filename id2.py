@@ -6,6 +6,7 @@ import base64
 import fitz  # PyMuPDF for PDF extraction
 import pytesseract  # For OCR text extraction from images
 from googletrans import Translator  # For translation
+from docx import Document  # For DOCX processing
 
 # Language code mapping with full language names
 language_mapping = {
@@ -89,6 +90,12 @@ def extract_text_from_pdf(pdf_file):
         text += page.get_text()
     return text
 
+# Function to extract text from a DOCX file
+def extract_text_from_docx(docx_file):
+    doc = Document(docx_file)
+    text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+    return text
+
 # Function to extract text from an image using OCR
 def extract_text_from_image(image_file):
     text = pytesseract.image_to_string(image_file)
@@ -123,54 +130,29 @@ def main():
     language_options = [f"{full_name} ({code})" for code, full_name in language_mapping.items()]
     language = st.selectbox("Select Language", language_options)
 
-    if st.button("Convert to Voice") and text:
-        # Extract language code from the selected option
-        selected_language_code = language.split(" ")[-1][1:-1]
+    uploaded_file = st.file_uploader("Upload File (PDF, DOCX, or Image)", type=["pdf", "docx", "jpg", "jpeg", "png"])
 
-        # Create a temporary file to store the speech as an MP3 file
-        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_file:
-            temp_file_name = temp_file.name
+    if uploaded_file:
+        if uploaded_file.type == "application/pdf":
+            # Handle PDF file
+            file_text = extract_text_from_pdf(uploaded_file)
+        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            # Handle DOCX file
+            file_text = extract_text_from_docx(uploaded_file)
+        elif uploaded_file.type in ["image/jpeg", "image/jpg", "image/png"]:
+            # Handle image file
+            file_text = extract_text_from_image(uploaded_file)
+        else:
+            st.write("Unsupported file type. Please upload a PDF, DOCX, or image file.")
+            return
 
-            # Convert text to speech and save as an MP3 file
-            convert_text_to_speech(text, temp_file_name, language=selected_language_code)
+        st.write("File Content:")
+        st.write(file_text)
 
-        # Send the voice note
-        st.audio(temp_file_name, format='audio/mp3')
-
-        # Provide download button for the MP3 file
-        st.markdown(get_binary_file_downloader_html('download audio file', temp_file_name, 'audio/mp3'), unsafe_allow_html=True)
-
-        # Remove the temporary file
-        if temp_file_name:
-            os.remove(temp_file_name)
-
-        # Count and display the number of words in the input text
-        word_count = count_words_in_text(text)
-        st.write(f"Number of words in the input text: {word_count}")
-
-    # Add file upload options
-    uploaded_pdf = st.file_uploader("Upload PDF", type=["pdf"])
-    uploaded_image = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
-
-    if uploaded_pdf:
-        pdf_text = extract_text_from_pdf(uploaded_pdf)
-        st.write("PDF Content:")
-        st.write(pdf_text)
-
-        # Translate PDF content
-        translated_pdf_text = translate_text(pdf_text)
-        st.write("Translated PDF Content:")
-        st.write(translated_pdf_text)
-
-    if uploaded_image:
-        image_text = extract_text_from_image(uploaded_image)
-        st.write("Image Content:")
-        st.write(image_text)
-
-        # Translate image content
-        translated_image_text = translate_text(image_text)
-        st.write("Translated Image Content:")
-        st.write(translated_image_text)
+        # Translate file content
+        translated_file_text = translate_text(file_text)
+        st.write("Translated File Content:")
+        st.write(translated_file_text)
 
 # Run the Streamlit app
 if __name__ == "__main__":
