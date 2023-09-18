@@ -69,6 +69,33 @@ language_mapping = {
     "xh": "Xhosa"
 }
 
+# Custom function to process DOCX text without lists
+def process_docx_text_without_lists(docx_file):
+    text = docx2txt.process(docx_file)
+    
+    # Remove list items
+    text = '\n'.join([line for line in text.split('\n') if not line.startswith(('- ', '• ', 'o '))])
+    
+    return text
+
+# Custom function to process PDF text without lists
+def process_pdf_text_without_lists(pdf_file):
+    pdf_text = ""
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    for page_num in range(len(pdf_reader.pages)):
+        page = pdf_reader.pages[page_num]
+        pdf_text += page.extract_text()
+    
+    # Remove list items
+    pdf_text = '\n'.join([line for line in pdf_text.split('\n') if not line.startswith(('- ', '• ', 'o '))])
+    
+    return pdf_text
+
+# Custom function to extract text from an image
+def extract_text_from_image(img):
+    text = pytesseract.image_to_string(img)
+    return text
+
 # Create a Streamlit app
 st.title("File Uploader with OCR and Translation")
 
@@ -79,23 +106,19 @@ if uploaded_file is not None:
     file_extension = uploaded_file.name.split('.')[-1].lower()
     if file_extension == "docx":
         # Display DOCX content
-        docx_text = docx2txt.process(uploaded_file)
+        docx_text = process_docx_text_without_lists(uploaded_file)
         st.write(docx_text)
     elif file_extension == "pdf":
         # Display PDF content
-        pdf_text = ""
-        pdf_reader = PyPDF2.PdfReader(uploaded_file)
-        for page_num in range(len(pdf_reader.pages)):
-            page = pdf_reader.pages[page_num]
-            pdf_text += page.extract_text()
+        pdf_text = process_pdf_text_without_lists(uploaded_file)
         st.write(pdf_text)
     elif file_extension in ["jpg", "jpeg", "png"]:
         # Display image
         img = Image.open(uploaded_file)
         st.image(img, caption="Uploaded Image", use_column_width=True)
         
-        # Extract text from the image using pytesseract's built-in OCR
-        text = pytesseract.image_to_string(img)
+        # Extract text from the image using custom function
+        text = extract_text_from_image(img)
         st.write("Text extracted from the image:")
         st.write(text)
     elif file_extension == "txt":
