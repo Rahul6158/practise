@@ -19,10 +19,10 @@ if uploaded_file is not None:
     elif file_extension == "pdf":
         # Display PDF content
         pdf_text = ""
-        pdf_reader = PyPDF2.PdfFileReader(uploaded_file)
-        for page_num in range(pdf_reader.numPages):
-            page = pdf_reader.getPage(page_num)
-            pdf_text += page.extractText()
+        pdf_reader = PyPDF2.PdfReader(uploaded_file)
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            pdf_text += page.extract_text()
         st.write(pdf_text)
     elif file_extension in ["jpg", "jpeg", "png"]:
         # Display image
