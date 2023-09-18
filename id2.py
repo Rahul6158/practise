@@ -105,6 +105,33 @@ def translate_text_with_fallback(text, target_language):
         st.error(f"Google Translate error: {str(e)}")
 
     return "Translation failed. Please try again later."
+
+
+# Function to translate text using the MyMemory translate library with a loop
+def translate_text_mymemory(text, target_language):
+    translator = MyMemoryTranslator(to_lang=target_language)
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk)
+        translated_text += translated_chunk
+
+    return translated_text
+
+# Function to translate text using Google Translate with a loop
+def translate_text_google(text, target_language):
+    translator = GoogleTranslator()
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk, dest=target_language)
+        translated_text += translated_chunk.text
+
+    return translated_text
     
 
 
