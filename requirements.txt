@@ -8,7 +8,6 @@ translate
 googletrans==4.0.0-rc1
 python-docx
 bs4
-translate
 PyMuPDF
 pytesseract
 PyPDF2
