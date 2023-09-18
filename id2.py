@@ -118,6 +118,10 @@ def translate_text_with_fallback(text, target_language):
     st.warning("Falling back to Google Translate...")
     return translate_text_with_google(text, target_language)
 
+# Function to count words in the text
+def count_words(text):
+    words = text.split()
+    return len(words)
 
 language_mapping = {
     "en": "English",
@@ -220,6 +224,15 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             st.write(text)
 
+            # Count words in the text
+            word_count = count_words(text)
+            st.subheader(f"Word Count: {word_count} words")
+
+            # Check if word count exceeds 1000
+            if word_count > 1000:
+                st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
+                return  # Exit the function if word count exceeds 1000
+
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             # Check if the target language is in the mapping
@@ -227,8 +240,12 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Translate the extracted text with fallback to Google Translate
-                translated_text = translate_text_with_fallback(text, target_language_code)
+                # Translate the extracted text
+                try:
+                    translated_text = translate_text(text, target_language_code)
+                except Exception as e:
+                    st.error(f"Translation error: {str(e)}")
+                    translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
                 translated_text = None
@@ -268,4 +285,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
