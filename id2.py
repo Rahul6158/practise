@@ -19,13 +19,17 @@ def process_docx_text(docx_file, skip_lists=True):
     return text
 
 # Custom function to remove lists from DOCX text
-def process_docx_text_without_lists(docx_file):
-    doc = Document(docx_file)
-    text = ""
-    for paragraph in doc.paragraphs:
-        if not paragraph.style.name.startswith('•'):
-            text += paragraph.text + '\n'
-    return text
+def process_pdf_text_without_lists(pdf_file):
+    pdf_text = ""
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+    for page_num in range(pdf_reader.numPages):
+        page = pdf_reader.getPage(page_num)
+        pdf_text += page.extractText()
+    
+    # Remove list items
+    pdf_text = '\n'.join([line for line in pdf_text.split('\n') if not line.startswith(('- ', '• ', 'o '))])
+    
+    return pdf_text
 
 # Function to translate text using Google Translate API
 def translate_text_google(text, target_language):
