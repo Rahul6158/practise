@@ -68,6 +68,7 @@ language_mapping = {
     "zu": "Zulu",
     "xh": "Xhosa"
 }
+
 # Create a Streamlit app
 st.title("File Uploader with OCR and Translation")
 
@@ -107,8 +108,16 @@ if uploaded_file is not None:
     target_language = [key for key, value in language_mapping.items() if value == translation_language][0]
     
     if st.button("Translate"):
-        translator = Translator(to_lang=target_language)
-        translated_text = translator.translate(text)
+        # Split the text into sentences and translate each sentence
+        sentences = text.split('.')
+        translated_sentences = []
+
+        for sentence in sentences:
+            translator = Translator(to_lang=target_language)
+            translated_sentence = translator.translate(sentence)
+            translated_sentences.append(translated_sentence)
+
+        translated_text = '. '.join(translated_sentences)
         st.write(f"Translated text to {translation_language}:")
         st.write(translated_text)
 
