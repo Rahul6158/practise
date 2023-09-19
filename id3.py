@@ -104,9 +104,9 @@ def convert_word_doc_to_html(docx_file):
     soup = BeautifulSoup(txt, 'html.parser')
     return soup.prettify()
 
-# Function to translate text using the translate library with a loop
-def translate_text(text, target_language):
-    translator = Translator(to_lang=target_language)
+# Function to translate text from source language to target language
+def translate_text(text, source_language, target_language):
+    translator = Translator(from_lang=source_language, to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
 
@@ -116,6 +116,7 @@ def translate_text(text, target_language):
         translated_text += translated_chunk
 
     return translated_text
+
 
 # Function to translate text using Google Translate with a loop
 def translate_text_with_google(text, target_language):
