@@ -113,6 +113,7 @@ def process_docx_text_without_lists(docx_file):
     return text
 
 # Function to extract text from a PDF file without lists
+# Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     try:
@@ -122,10 +123,14 @@ def process_pdf_text_without_lists(pdf_file):
             for page_number in range(num_pages):
                 page = pdf_reader.getPage(page_number)
                 pdf_text += page.extractText()
-    except PyPDF2.utils.PdfReadError as e:
-        st.error(f"Error processing PDF: {str(e)}")
+    except Exception as e:
+        if isinstance(e, PyPDF2.utils.PdfReadError):
+            st.error(f"PDF Read Error: {str(e)}")
+        else:
+            st.error(f"Error processing PDF: {str(e)}")
         pdf_text = ""
     return pdf_text
+
 
 # Function to translate text using the translate library with a loop
 def translate_text(text, source_language, target_language):
