@@ -196,6 +196,7 @@ def count_words(text):
     return len(words)
 
 # Main Streamlit app# Main Streamlit app
+# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (Auto-detect language)")
@@ -282,7 +283,7 @@ def main():
                 output_file = "translated_speech.mp3"
 
                 # Ensure that target_language_code is a valid language code
-                if target_language_code not in gTTS.LANGUAGES:
+                if target_language_code not in language_mapping:
                     st.error(f"Unsupported language code: {target_language_code}")
                 else:
                     convert_text_to_speech(translated_text, output_file, language=target_language_code)
