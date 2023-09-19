@@ -12,7 +12,6 @@ import PyPDF2
 import pytesseract
 import easyocr
 from PIL import Image
-from langdetect import detect  # Add this import for language detection
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -142,14 +141,6 @@ def translate_text_with_fallback(text, target_language):
     st.warning("Falling back to Google Translate...")
     return translate_text_with_google(text, target_language)
 
-# Function to detect the language of the input text
-def detect_language(text):
-    try:
-        return detect(text)
-    except Exception as e:
-        st.warning(f"Language detection error: {str(e)}")
-        return "en"  # Default to English if language detection fails
-
 # Function to count words in the text
 def count_words(text):
     words = text.split()
@@ -216,11 +207,11 @@ language_mapping = {
     "zu": "Zulu",
     "xh": "Xhosa"
 }
-# Main Streamlit app
+
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
-    st.title("Text Translation and Conversion to Speech (Multilingual Support)")
+    st.title("Text Translation and Conversion to Speech (English - other languages)")
 
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
@@ -257,19 +248,25 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             st.write(text)
 
-            # Detect the source language of the input text
-            source_language = detect_language(text)
+            # Count words in the text
+            word_count = count_words(text)
+            st.subheader(f"Word Count: {word_count} words")
 
-            st.subheader(f"Source Language Detected: {language_mapping.get(source_language, 'Unknown')}")
-
-            st.subheader('Select Target Language for Translation:')
+            # Check if word count exceeds 1000
+            if word_count > 1000:
+                st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
+                return  # Exit the function if word count exceeds 1000
+            st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
+
+            # Check if the target language is in the mapping
+            target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
                 # Translate the extracted text
                 try:
-                    translated_text = translate_text(text, source_language, target_language)
+                    translated_text = translate_text(text, target_language_code)
                 except Exception as e:
                     st.error(f"Translation error: {str(e)}")
                     translated_text = None
@@ -285,13 +282,21 @@ def main():
                 st.warning("Translation result is empty. Please check your input text.")
 
             # Convert the translated text to speech
-            if st.button("Convert to Speech and Get Translated Document"):
+            if st.button("Convert to Speech and get Translated document"):
                 output_file = "translated_speech.mp3"
-                convert_text_to_speech(translated_text, output_file, language=target_language)
+                convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
                 st.audio(audio_file.read(), format='audio/mp3')
+
+                # Play the generated speech (platform-dependent)
+                if os.name == 'posix':  # For Unix/Linux
+                    os.system(f"xdg-open {output_file}")
+                elif os.name == 'nt':  # For Windows
+                    os.system(f"start {output_file}")
+                else:
+                    st.warning("Unsupported operating system")
 
                 # Provide a download link for the MP3 file
                 st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
