@@ -13,3 +13,4 @@ pytesseract
 fitz
 easyocr
 PyPDF2
+langdetect
