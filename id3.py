@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import pytesseract
 import easyocr
+import PyPDF2
 from PIL import Image
 from langdetect import detect
 from googletrans import Translator as GoogleTranslator
