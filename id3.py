@@ -113,7 +113,6 @@ def process_docx_text_without_lists(docx_file):
     return text
 
 # Function to extract text from a PDF file without lists
-# Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     try:
@@ -127,11 +126,15 @@ def process_pdf_text_without_lists(pdf_file):
         st.error(f"Error processing PDF: {str(e)}")
     return pdf_text
 
-
+# Function to extract text from a TXT file
+def process_txt_file(txt_file):
+    txt_text = txt_file.read()
+    text = txt_text.decode('utf-8')
+    return text
 
 # Function to translate text using the translate library with a loop
-def translate_text(text, source_language, target_language):
-    translator = Translator(to_lang=target_language, from_lang=source_language)
+def translate_text(text, target_language):
+    translator = Translator(to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
 
@@ -141,8 +144,6 @@ def translate_text(text, source_language, target_language):
         translated_text += translated_chunk
 
     return translated_text
-
-# Function to convert text to speech and save as an MP3 file
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
     if text:
