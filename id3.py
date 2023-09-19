@@ -87,28 +87,21 @@ def process_docx_text(docx_file, skip_lists=True):
         text = docx2txt.process(docx_file)
     return text
 
-# Function to extract text from an image using easyocr
-def extract_text_from_image(image_bytes):
+# Function to extract text from an uploaded image using Pytesseract
+def extract_text_from_uploaded_image(uploaded_image):
     try:
-        # Open the image using PIL and check if it's a valid image format
-        img = Image.open(io.BytesIO(image_bytes))
-        img_format = img.format
-        
-        if img_format in ("JPEG", "PNG", "BMP", "GIF"):
-            reader = easyocr.Reader(['en'])
-            results = reader.readtext(img)
-
-            text = ""
-            for (bbox, text, prob) in results:
-                text += text + " "
-
-            return text.strip()
-        else:
-            st.warning("Unsupported image format. Please upload a valid JPEG, PNG, BMP, or GIF image.")
-            return ""
+        image = Image.open(uploaded_image)
+        text = pytesseract.image_to_string(image)
+        return text
     except Exception as e:
-        st.error(f"Error extracting text from image: {str(e)}")
-        return ""
+        return str(e)
+
+# Example usage within Streamlit
+uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+if uploaded_image is not None:
+    extracted_text = extract_text_from_uploaded_image(uploaded_image)
+    st.write("Extracted text:")
+    st.write(extracted_text)
 
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
