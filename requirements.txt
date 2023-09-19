@@ -10,6 +10,6 @@ python-docx
 bs4
 PyMuPDF
 pytesseract
-PyPDF2
 fitz
 easyocr
+PyPDF2
