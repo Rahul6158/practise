@@ -90,9 +90,12 @@ def process_docx_text(docx_file, skip_lists=True):
 # Function to extract text from an image using easyocr
 def extract_text_from_image(image_bytes):
     try:
-        image = Image.open(io.BytesIO(image_bytes))
-        reader = easyocr.Reader(['en'])  # Specify the language(s) you want to recognize
-        results = reader.readtext(image)
+        # Check if the uploaded file is a valid image
+        img = Image.open(io.BytesIO(image_bytes))
+        
+        # Proceed with OCR if it's a valid image
+        reader = easyocr.Reader(['en'])
+        results = reader.readtext(img)
 
         text = ""
         for (bbox, text, prob) in results:
