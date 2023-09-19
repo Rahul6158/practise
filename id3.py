@@ -217,6 +217,7 @@ language_mapping = {
     "xh": "Xhosa"
 }
 # Main Streamlit app
+# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (Multilingual Support)")
@@ -269,7 +270,6 @@ def main():
                 # Translate the extracted text
                 try:
                     translated_text = translate_text(text, source_language, target_language)
-                    
                 except Exception as e:
                     st.error(f"Translation error: {str(e)}")
                     translated_text = None
