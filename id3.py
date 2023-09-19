@@ -67,8 +67,10 @@ def process_pdf_text_without_lists(pdf_file):
     return pdf_text
 
 # Function to translate text using the translate library with a loop
+# Function to translate text using the translate library with a loop
 def translate_text(text, target_language):
-    translator = Translator(to_lang=target_language)
+    source_language = detect(text)  # Detect the source language
+    translator = Translator(from_lang=source_language, to_lang=target_language)
     max_chunk_length = 500
     translated_text = ""
 
