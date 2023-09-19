@@ -90,18 +90,22 @@ def process_docx_text(docx_file, skip_lists=True):
 # Function to extract text from an image using easyocr
 def extract_text_from_image(image_bytes):
     try:
-        # Check if the uploaded file is a valid image
+        # Open the image using PIL and check if it's a valid image format
         img = Image.open(io.BytesIO(image_bytes))
+        img_format = img.format
         
-        # Proceed with OCR if it's a valid image
-        reader = easyocr.Reader(['en'])
-        results = reader.readtext(img)
+        if img_format in ("JPEG", "PNG", "BMP", "GIF"):
+            reader = easyocr.Reader(['en'])
+            results = reader.readtext(img)
 
-        text = ""
-        for (bbox, text, prob) in results:
-            text += text + " "
+            text = ""
+            for (bbox, text, prob) in results:
+                text += text + " "
 
-        return text.strip()
+            return text.strip()
+        else:
+            st.warning("Unsupported image format. Please upload a valid JPEG, PNG, BMP, or GIF image.")
+            return ""
     except Exception as e:
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
