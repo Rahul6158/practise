@@ -99,7 +99,8 @@ def extract_text_from_uploaded_image(uploaded_image):
 # Example usage within Streamlit
 uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 if uploaded_image is not None:
-    extracted_text = extract_text_from_uploaded_image(uploaded_image)
+    image_bytes = uploaded_image.read()  # Read the uploaded image as bytes
+    extracted_text = extract_text_from_image(image_bytes)
     st.write("Extracted text:")
     st.write(extracted_text)
 
