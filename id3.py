@@ -51,15 +51,16 @@ def process_docx_text_without_lists(docx_file):
     return text
 
 # Function to extract text from a PDF file without lists
+# Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
     try:
         with st.spinner("Extracting text from PDF..."):
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
-            num_pages = len(pdf_reader.pages)
+            pdf_reader = PyPDF2.PdfFileReader(pdf_file)  # Change to PdfFileReader
+            num_pages = pdf_reader.numPages
             for page_number in range(num_pages):
-                page = pdf_reader.pages[page_number]
-                pdf_text += page.extract_text()
+                page = pdf_reader.getPage(page_number)
+                pdf_text += page.extractText()
     except PyPDF2.utils.PdfReadError as e:
         st.error(f"Error processing PDF: {str(e)}")
         pdf_text = ""
