@@ -269,6 +269,7 @@ def main():
                 # Translate the extracted text
                 try:
                     translated_text = translate_text(text, source_language, target_language)
+                    
                 except Exception as e:
                     st.error(f"Translation error: {str(e)}")
                     translated_text = None
