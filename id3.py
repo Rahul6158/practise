@@ -88,13 +88,20 @@ def process_docx_text(docx_file, skip_lists=True):
     return text
 
 # Function to extract text from an uploaded image using Pytesseract
-def extract_text_from_uploaded_image(uploaded_image):
+def extract_text_from_uploaded_image(uploaded_image, language='eng'):
     try:
+        # Open the image using Pillow (PIL)
         image = Image.open(uploaded_image)
-        text = pytesseract.image_to_string(image)
+        
+        # Convert the image to RGB mode (required by Tesseract)
+        image = image.convert('RGB')
+
+        # Use pytesseract to extract text
+        text = pytesseract.image_to_string(image, lang=language)
         return text
     except Exception as e:
         return str(e)
+
 
 # Example usage within Streamlit
 uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
