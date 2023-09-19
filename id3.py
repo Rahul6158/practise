@@ -8,11 +8,11 @@ import io
 from docx import Document
 from bs4 import BeautifulSoup
 from PIL import Image
-import PyPDF2
 import pytesseract
 import easyocr
 from PIL import Image
 from langdetect import detect
+from googletrans import Translator as GoogleTranslator
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -40,7 +40,6 @@ def extract_text_from_image(image_bytes):
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
 
-
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
     doc = Document(docx_file)
@@ -50,7 +49,6 @@ def process_docx_text_without_lists(docx_file):
             text += paragraph.text + '\n'
     return text
 
-# Function to extract text from a PDF file without lists
 # Function to extract text from a PDF file without lists
 def process_pdf_text_without_lists(pdf_file):
     pdf_text = ""
@@ -67,10 +65,8 @@ def process_pdf_text_without_lists(pdf_file):
     return pdf_text
 
 # Function to translate text using the translate library with a loop
-# Function to translate text using the translate library with a loop
-def translate_text(text, target_language):
-    source_language = detect(text)  # Detect the source language
-    translator = Translator(from_lang=source_language, to_lang=target_language)
+def translate_text(text, source_language, target_language):
+    translator = Translator(to_lang=target_language, from_lang=source_language)
     max_chunk_length = 500
     translated_text = ""
 
@@ -80,7 +76,6 @@ def translate_text(text, target_language):
         translated_text += translated_chunk
 
     return translated_text
-
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
@@ -102,25 +97,6 @@ def convert_text_to_word_doc(text, output_file):
     doc.add_paragraph(text)
     doc.save(output_file)
 
-# Function to convert Word document to HTML
-def convert_word_doc_to_html(docx_file):
-    txt = docx2txt.process(docx_file)
-    soup = BeautifulSoup(txt, 'html.parser')
-    return soup.prettify()
-
-# Function to translate text using the translate library with a loop
-def translate_text(text, target_language):
-    translator = Translator(to_lang=target_language)
-    max_chunk_length = 500
-    translated_text = ""
-
-    for i in range(0, len(text), max_chunk_length):
-        chunk = text[i:i + max_chunk_length]
-        translated_chunk = translator.translate(chunk)
-        translated_text += translated_chunk
-
-    return translated_text
-
 # Function to translate text using Google Translate with a loop
 def translate_text_with_google(text, target_language):
     google_translator = GoogleTranslator()
@@ -136,11 +112,11 @@ def translate_text_with_google(text, target_language):
     return translated_text
 
 # Function to translate text with fallback to Google Translate on errors
-def translate_text_with_fallback(text, target_language):
+def translate_text_with_fallback(text, source_language, target_language):
     try:
-        return translate_text(text, target_language)
+        return translate_text(text, source_language, target_language)
     except Exception as e:
-        st.warning(f"MyMemory translation error: {str(e)}")
+        st.warning(f"Translation error: {str(e)}")
 
     # If MyMemory fails, use Google Translate
     st.warning("Falling back to Google Translate...")
@@ -155,62 +131,7 @@ language_mapping = {
     "en": "English",
     "es": "Spanish",
     "fr": "French",
-    "de": "German",
-    "it": "Italian",
-    "pt": "Portuguese",
-    "nl": "Dutch",
-    "hi": "Hindi",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "zh-cn": "Simplified Chinese",
-    "ru": "Russian",
-    "ar": "Arabic",
-    "th": "Thai",
-    "tr": "Turkish",
-    "pl": "Polish",
-    "cs": "Czech",
-    "sv": "Swedish",
-    "da": "Danish",
-    "fi": "Finnish",
-    "el": "Greek",
-    "hu": "Hungarian",
-    "uk": "Ukrainian",
-    "no": "Norwegian",
-    "id": "Indonesian",
-    "vi": "Vietnamese",
-    "ro": "Romanian",
-    "bn": "Bengali",
-    "fa": "Persian",
-    "iw": "Hebrew",
-    "bg": "Bulgarian",
-    "ca": "Catalan",
-    "hr": "Croatian",
-    "sr": "Serbian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "lt": "Lithuanian",
-    "lv": "Latvian",
-    "et": "Estonian",
-    "is": "Icelandic",
-    "ga": "Irish",
-    "sq": "Albanian",
-    "mk": "Macedonian",
-    "hy": "Armenian",
-    "ka": "Georgian",
-    "mt": "Maltese",
-    "mr": "Marathi",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "ur": "Urdu",
-    "ne": "Nepali",
-    "si": "Sinhala",
-    "km": "Khmer",
-    "lo": "Lao",
-    "my": "Burmese",
-    "jw": "Javanese",
-    "mn": "Mongolian",
-    "zu": "Zulu",
-    "xh": "Xhosa"
+    # Add more language mappings here...
 }
 
 # Main Streamlit app
@@ -277,7 +198,7 @@ def main():
             if text and len(text.strip()) > 0:
                 # Translate the extracted text
                 try:
-                    translated_text = translate_text(text, source_language, target_language)
+                    translated_text = translate_text_with_fallback(text, source_language, target_language)
                 except Exception as e:
                     st.error(f"Translation error: {str(e)}")
                     translated_text = None
@@ -300,14 +221,6 @@ def main():
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
                 st.audio(audio_file.read(), format='audio/mp3')
-
-                # Play the generated speech (platform-dependent)
-                if os.name == 'posix':  # For Unix/Linux
-                    os.system(f"xdg-open {output_file}")
-                elif os.name == 'nt':  # For Windows
-                    os.system(f"start {output_file}")
-                else:
-                    st.warning("Unsupported operating system")
 
                 # Provide a download link for the MP3 file
                 st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
