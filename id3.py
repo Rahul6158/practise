@@ -249,10 +249,20 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             st.write(text)
 
-            # Detect the source language of the input text
-            source_language = detect(text)
+            # Check if text is of sufficient length for language detection
+            if len(text) < 10:
+                st.warning("Input text is too short for language detection. Language detection will be skipped.")
+                source_language = None
+            else:
+                # Detect the source language of the input text
+                try:
+                    source_language = detect(text)
+                except Exception as e:
+                    st.warning("Language detection failed. Language detection will be skipped.")
+                    source_language = None
 
-            st.subheader(f"Source Language Detected: {language_mapping.get(source_language, 'Unknown')}")
+            if source_language:
+                st.subheader(f"Source Language Detected: {language_mapping.get(source_language, 'Unknown')}")
 
             st.subheader('Select Target Language for Translation:')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
