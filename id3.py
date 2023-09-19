@@ -60,8 +60,9 @@ def process_pdf_text_without_lists(pdf_file):
             for page_number in range(num_pages):
                 page = pdf_reader.pages[page_number]
                 pdf_text += page.extract_text()
-    except Exception as e:
+    except PyPDF2.utils.PdfReadError as e:
         st.error(f"Error processing PDF: {str(e)}")
+        pdf_text = ""
     return pdf_text
 
 # Function to translate text using the translate library with a loop
