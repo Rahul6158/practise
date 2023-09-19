@@ -144,10 +144,6 @@ def translate_text(text, source_language, target_language):
 def convert_text_to_speech(text, output_file, language='en'):
     if text:
         supported_languages = 'language_mapping'# Add more supported languages as needed
-        if language not in supported_languages:
-            st.warning(f"Unsupported language code: {language}. Using default language 'en'.")
-            language = 'en'  # Use English as the default language
-
         tts = gTTS(text=text, lang=language)
         tts.save(output_file)
 
