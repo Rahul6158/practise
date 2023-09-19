@@ -14,6 +14,68 @@ from PIL import Image
 from langdetect import detect
 from googletrans import Translator as GoogleTranslator
 
+language_mapping = {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "nl": "Dutch",
+    "hi": "Hindi",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh-cn": "Simplified Chinese",
+    "ru": "Russian",
+    "ar": "Arabic",
+    "th": "Thai",
+    "tr": "Turkish",
+    "pl": "Polish",
+    "cs": "Czech",
+    "sv": "Swedish",
+    "da": "Danish",
+    "fi": "Finnish",
+    "el": "Greek",
+    "hu": "Hungarian",
+    "uk": "Ukrainian",
+    "no": "Norwegian",
+    "id": "Indonesian",
+    "vi": "Vietnamese",
+    "ro": "Romanian",
+    "bn": "Bengali",
+    "fa": "Persian",
+    "iw": "Hebrew",
+    "bg": "Bulgarian",
+    "ca": "Catalan",
+    "hr": "Croatian",
+    "sr": "Serbian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "et": "Estonian",
+    "is": "Icelandic",
+    "ga": "Irish",
+    "sq": "Albanian",
+    "mk": "Macedonian",
+    "hy": "Armenian",
+    "ka": "Georgian",
+    "mt": "Maltese",
+    "mr": "Marathi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "ur": "Urdu",
+    "ne": "Nepali",
+    "si": "Sinhala",
+    "km": "Khmer",
+    "lo": "Lao",
+    "my": "Burmese",
+    "jw": "Javanese",
+    "mn": "Mongolian",
+    "zu": "Zulu",
+    "xh": "Xhosa"
+}
+
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
     # Extract text from the DOCX file
@@ -78,10 +140,17 @@ def translate_text(text, source_language, target_language):
     return translated_text
 
 # Function to convert text to speech and save as an MP3 file
+# Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
     if text:
+        supported_languages = 'language_mapping'# Add more supported languages as needed
+        if language not in supported_languages:
+            st.warning(f"Unsupported language code: {language}. Using default language 'en'.")
+            language = 'en'  # Use English as the default language
+
         tts = gTTS(text=text, lang=language)
         tts.save(output_file)
+
 
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_path, file_format):
@@ -127,67 +196,6 @@ def count_words(text):
     words = text.split()
     return len(words)
 
-language_mapping = {
-    "en": "English",
-    "es": "Spanish",
-    "fr": "French",
-    "de": "German",
-    "it": "Italian",
-    "pt": "Portuguese",
-    "nl": "Dutch",
-    "hi": "Hindi",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "zh-cn": "Simplified Chinese",
-    "ru": "Russian",
-    "ar": "Arabic",
-    "th": "Thai",
-    "tr": "Turkish",
-    "pl": "Polish",
-    "cs": "Czech",
-    "sv": "Swedish",
-    "da": "Danish",
-    "fi": "Finnish",
-    "el": "Greek",
-    "hu": "Hungarian",
-    "uk": "Ukrainian",
-    "no": "Norwegian",
-    "id": "Indonesian",
-    "vi": "Vietnamese",
-    "ro": "Romanian",
-    "bn": "Bengali",
-    "fa": "Persian",
-    "iw": "Hebrew",
-    "bg": "Bulgarian",
-    "ca": "Catalan",
-    "hr": "Croatian",
-    "sr": "Serbian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "lt": "Lithuanian",
-    "lv": "Latvian",
-    "et": "Estonian",
-    "is": "Icelandic",
-    "ga": "Irish",
-    "sq": "Albanian",
-    "mk": "Macedonian",
-    "hy": "Armenian",
-    "ka": "Georgian",
-    "mt": "Maltese",
-    "mr": "Marathi",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "ur": "Urdu",
-    "ne": "Nepali",
-    "si": "Sinhala",
-    "km": "Khmer",
-    "lo": "Lao",
-    "my": "Burmese",
-    "jw": "Javanese",
-    "mn": "Mongolian",
-    "zu": "Zulu",
-    "xh": "Xhosa"
-}
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
