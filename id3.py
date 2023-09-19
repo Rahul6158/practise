@@ -214,9 +214,9 @@ language_mapping = {
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
-    st.title("Text Translation and Conversion to Speech (Multilingual Support)")
+    st.title("Text Translation and Conversion to Speech (Auto-detect language)")
 
-    # Add a file uploader for DOCX, PDF, images, and text files
+    # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
 
     if uploaded_file is not None:
@@ -251,22 +251,24 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             st.write(text)
 
-            # Check if text is of sufficient length for language detection
-            if len(text) < 10:
-                st.warning("Input text is too short for language detection. Language detection will be skipped.")
-                source_language = None
-            else:
-                # Detect the source language of the input text
-                try:
-                    source_language = detect(text)
-                except Exception as e:
-                    st.warning("Language detection failed. Language detection will be skipped.")
-                    source_language = None
+            # Count words in the text
+            word_count = count_words(text)
+            st.subheader(f"Word Count: {word_count} words")
 
-            if source_language:
-                st.subheader(f"Source Language Detected: {language_mapping.get(source_language, 'Unknown')}")
+            # Check if word count exceeds 1000
+            if word_count > 1000:
+                st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
+                return  # Exit the function if word count exceeds 1000
 
-            st.subheader('Select Target Language for Translation:')
+            # Detect the source language
+            try:
+                source_language = detect(text)
+                st.subheader(f"Source Language: {source_language}")
+            except Exception as e:
+                st.error(f"Language detection error: {str(e)}")
+                source_language = "en"  # Default to English if detection fails
+
+            st.subheader('Select Target Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             # Check if text is not empty or None before attempting translation
@@ -289,13 +291,21 @@ def main():
                 st.warning("Translation result is empty. Please check your input text.")
 
             # Convert the translated text to speech
-            if st.button("Convert to Speech and Get Translated Document"):
+            if st.button("Convert to Speech and get Translated document"):
                 output_file = "translated_speech.mp3"
                 convert_text_to_speech(translated_text, output_file, language=target_language)
 
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
                 st.audio(audio_file.read(), format='audio/mp3')
+
+                # Play the generated speech (platform-dependent)
+                if os.name == 'posix':  # For Unix/Linux
+                    os.system(f"xdg-open {output_file}")
+                elif os.name == 'nt':  # For Windows
+                    os.system(f"start {output_file}")
+                else:
+                    st.warning("Unsupported operating system")
 
                 # Provide a download link for the MP3 file
                 st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
