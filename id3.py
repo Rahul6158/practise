@@ -192,8 +192,9 @@ def main():
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split('.')[-1].lower()
 
-        # Initialize text as None
+        # Initialize text and translated_text as None
         text = None
+        translated_text = None  # Added this line
 
         if file_extension == "docx":
             # Display DOCX content
@@ -229,7 +230,6 @@ def main():
             if word_count > 15000:
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
-
             st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
@@ -243,7 +243,6 @@ def main():
                     translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
-                translated_text = None
 
             # Display translated text
             if translated_text:
@@ -253,9 +252,13 @@ def main():
                 st.warning("Translation result is empty. Please check your input text.")
 
             # Convert the translated text to speech and generate download links
-            if st.button("Convert to Speech and get Translated document"):
+            if st.button("Convert to Speech and get Translated document") and translated_text:
                 # Translate text using Google Translate
-                translated_text = translate_text_with_google(translated_text, target_language_code)
+                try:
+                    translated_text = translate_text_with_google(translated_text, target_language_code)
+                except Exception as e:
+                    st.error(f"Google Translate error: {str(e)}")
+                    return
 
                 # Convert translated text to speech
                 output_file = "translated_speech.mp3"
