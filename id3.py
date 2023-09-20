@@ -46,7 +46,6 @@ def extract_text_from_image(image_bytes):
         st.error(f"Error extracting text from image: {str(e)}")
         return ""
 
-
 # Custom function to remove lists from DOCX text
 def process_docx_text_without_lists(docx_file):
     doc = Document(docx_file)
@@ -82,7 +81,6 @@ def translate_text(text, target_language):
         translated_text += translated_chunk
 
     return translated_text
-
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
@@ -197,7 +195,6 @@ def summarize_large_text(text, num_sentences=5):
 
     return summary
 
-
 # Function to count words in the text
 def count_words(text):
     words = text.split()
@@ -264,8 +261,6 @@ language_mapping = {
     "zu": "Zulu",
     "xh": "Xhosa"
 }
-
-# Main Streamlit app
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
@@ -322,18 +317,18 @@ def main():
             else:
                 # Add buttons for summarization and translation
                 if st.button("Summarize Text"):
-                    summarized_text = summarize_text(text)
+                    summarized_text = summarize_large_text(text)
                     st.subheader("Summarized Text:")
                     st.write(summarized_text)
 
                 st.subheader('Select Language to Translate:')
-                target_language = st.selectbox("Select target language:", list(language_mapping.values()))
+                target_language_code = st.selectbox("Select target language:", list(language_mapping.keys()))
 
                 if st.button("Translate Text"):
                     # Translate the extracted text
                     try:
                         translated_text = translate_text(text, target_language_code)
-                        st.subheader(f"Translated text ({target_language}):")
+                        st.subheader(f"Translated text ({language_mapping[target_language_code]}):")
                         st.write(translated_text)
                     except Exception as e:
                         st.error(f"Translation error: {str(e)}")
