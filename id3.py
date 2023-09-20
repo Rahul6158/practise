@@ -237,7 +237,7 @@ def main():
                 st.warning("Translation result is empty. Please check your input text.")
 
             # Convert the translated text to speech
-                if st.button("Convert to Speech and get Translated document"):
+            if st.button("Convert to Speech and get Translated document"):
                 output_file = "translated_speech.mp3"
                 convert_text_to_speech(translated_text, output_file, language=target_language)
                 
