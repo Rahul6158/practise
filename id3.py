@@ -14,6 +14,7 @@ import easyocr
 from PIL import Image
 import speech_recognition as sr
 from pydub import AudioSegment
+from transformers import pipeline
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -183,6 +184,13 @@ def recognize_speech(uploaded_file):
         st.error(f"An error occurred during speech recognition: {str(e)}")
 
     return recognized_text
+
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+
+# Function to summarize text
+def summarize_text(text):
+    summary = summarizer(text, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
+    return summary
 
 # Function to count words in the text
 def count_words(text):
