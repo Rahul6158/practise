@@ -131,14 +131,17 @@ def process_txt_file(txt_file):
 
 # Function to translate text using Google Translate
 def translate_text_with_google(text, target_language):
-    translator = GoogleTranslator()
+    google_translator = GoogleTranslator()
 
-    # Determine the source language (if not specified)
-    source_language = translator.detect(text).lang
+    max_chunk_length = 500
+    translated_text = ""
 
-    # Translate the text
-    translated = translator.translate(text, src=source_language, dest=target_language)
-    return translated.text
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = google_translator.translate(chunk, dest=target_language).text
+        translated_text += translated_chunk
+
+    return translated_text
 
 # Function to convert text to speech and save as an MP3 file
 def convert_text_to_speech(text, output_file, language='en'):
