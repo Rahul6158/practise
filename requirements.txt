@@ -15,4 +15,3 @@ easyocr
 PyPDF2
 langdetect
 SpeechRecognition
-pyaudio
