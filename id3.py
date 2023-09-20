@@ -228,7 +228,6 @@ def main():
             if word_count > 15000:
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
-
             st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
@@ -242,6 +241,7 @@ def main():
                     translated_text = None
             else:
                 st.warning("Input text is empty. Please check your document.")
+                translated_text = None
 
             # Display translated text
             if translated_text:
@@ -250,21 +250,10 @@ def main():
             else:
                 st.warning("Translation result is empty. Please check your input text.")
 
-            # Convert the translated text to speech and generate download links
-            if st.button("Convert to Speech and get Translated document") and translated_text:
-                # Get the target language code from language_mapping
-                target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
-
-                # Translate text using Google Translate
-                try:
-                    translated_text = translate_text_with_google(translated_text, target_language_code)
-                except Exception as e:
-                    st.error(f"Google Translate error: {str(e)}")
-                    return
-
-                # Convert translated text to speech
+            # Convert the translated text to speech
+            if st.button("Convert to Speech and get Translated document"):
                 output_file = "translated_speech.mp3"
-                convert_text_to_speech(translated_text, output_file, language=target_language_code)
+                convert_text_to_speech(translated_text, output_file, language=target_language)
 
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
@@ -287,6 +276,9 @@ def main():
 
                 # Provide a download link for the Word document
                 st.markdown(get_binary_file_downloader_html("Download Word Document", word_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+    
+    # Call the speech recognition function
+    recognize_speech()
 
 if __name__ == "__main__":
     main()
