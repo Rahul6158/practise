@@ -181,6 +181,7 @@ def count_words(text):
     return len(words)
 
 # Main Streamlit app
+# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
@@ -228,6 +229,7 @@ def main():
             if word_count > 15000:
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
+
             st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
@@ -250,10 +252,14 @@ def main():
             else:
                 st.warning("Translation result is empty. Please check your input text.")
 
-            # Convert the translated text to speech
+            # Convert the translated text to speech and generate download links
             if st.button("Convert to Speech and get Translated document"):
+                # Translate text using Google Translate
+                translated_text = translate_text_with_google(translated_text, target_language_code)
+
+                # Convert translated text to speech
                 output_file = "translated_speech.mp3"
-                convert_text_to_speech(translated_text, output_file, language=target_language)
+                convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
                 # Play the generated speech
                 audio_file = open(output_file, 'rb')
