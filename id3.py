@@ -161,32 +161,7 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-def recognize_speech(uploaded_file):
-    recognizer = sr.Recognizer()
-    recognized_text = ""
-
-    try:
-        # Read the content of the uploaded audio file
-        audio_bytes = uploaded_file.read()
-        
-        # Convert audio to WAV format
-        wav_bytes = convert_audio_to_wav(audio_bytes)
-        
-        if wav_bytes is not None:
-            with sr.AudioFile(io.BytesIO(wav_bytes)) as source:
-                audio_data = recognizer.record(source)
-                recognized_text = recognizer.recognize_google(audio_data)
-    except sr.UnknownValueError:
-        st.warning("Google Speech Recognition could not understand audio.")
-    except sr.RequestError as e:
-        st.error(f"Could not request results from Google Speech Recognition service; {str(e)}")
-    except Exception as e:
-        st.error(f"An error occurred during speech recognition: {str(e)}")
-
-    return recognized_text
-
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
 # Function to summarize text
 def summarize_text(text):
     summary = summarizer(text, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
