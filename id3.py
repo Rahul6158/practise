@@ -15,6 +15,7 @@ from PIL import Image
 import speech_recognition as sr
 from pydub import AudioSegment
 from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -161,10 +162,19 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-# Function to summarize text
-def summarize_text(text):
-    summary = summarizer(text, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
+def summarize_text(input_text, max_length=150, min_length=30, do_sample=False):
+    # Load the BART tokenizer and model
+    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
+    model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
+
+    # Tokenize the input text
+    inputs = tokenizer(input_text, return_tensors="pt", max_length=max_length, truncation=True, padding=True)
+
+    # Generate the summary
+    summary_ids = model.generate(inputs["input_ids"], max_length=max_length, min_length=min_length, do_sample=do_sample)
+
+    # Decode and return the summary
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     return summary
 
 # Function to count words in the text
