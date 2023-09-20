@@ -16,3 +16,4 @@ PyPDF2
 langdetect
 SpeechRecognition
 pydub
+ffmpeg
