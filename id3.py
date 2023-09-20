@@ -12,6 +12,7 @@ import PyPDF2
 import pytesseract
 import easyocr
 from PIL import Image
+import SpeechRecognition
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
