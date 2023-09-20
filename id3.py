@@ -13,6 +13,7 @@ import pytesseract
 import easyocr
 from PIL import Image
 import speech_recognition as sr
+from pydub import AudioSegment
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -143,14 +144,34 @@ def translate_text_with_fallback(text, target_language):
     return translate_text_with_google(text, target_language)
 
 # Function to recognize speech from an audio file and return text
-def recognize_speech(audio_file):
+def convert_audio_to_wav(audio_bytes):
+    try:
+        # Load audio data from bytes
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
+        
+        # Export audio as WAV format
+        wav_audio = audio.export(format="wav")
+        
+        # Convert to bytes
+        wav_bytes = wav_audio.read()
+        
+        return wav_bytes
+    except Exception as e:
+        st.error(f"Error converting audio to WAV format: {str(e)}")
+        return None
+
+def recognize_speech(audio_bytes):
     recognizer = sr.Recognizer()
     recognized_text = ""
 
     try:
-        with sr.AudioFile(audio_file) as source:
-            audio_data = recognizer.record(source)
-            recognized_text = recognizer.recognize_google(audio_data)
+        # Convert audio to WAV format
+        wav_bytes = convert_audio_to_wav(audio_bytes)
+        
+        if wav_bytes is not None:
+            with sr.AudioFile(io.BytesIO(wav_bytes)) as source:
+                audio_data = recognizer.record(source)
+                recognized_text = recognizer.recognize_google(audio_data)
     except sr.UnknownValueError:
         st.warning("Google Speech Recognition could not understand audio.")
     except sr.RequestError as e:
