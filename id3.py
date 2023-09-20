@@ -187,7 +187,7 @@ def translate_text_with_fallback(text, source_language, target_language):
     try:
         return translate_text(text, source_language, target_language)
     except Exception as e:
-        st.warning(f"Translation error: {str(e)}")
+        st.warning(f"MyMemory translation error: {str(e)}")
 
     # If MyMemory fails, use Google Translate
     st.warning("Falling back to Google Translate...")
