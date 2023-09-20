@@ -182,12 +182,12 @@ def translate_text_with_google(text, target_language):
 
     return translated_text
 
-# Function to translate text with fallback to Google Translate on error
-def translate_text_with_fallback(text, target_language):
+# Function to translate text with fallback to Google Translate on errors
+def translate_text_with_fallback(text, source_language, target_language):
     try:
-        return translate_text(text, target_language)
+        return translate_text(text, source_language, target_language)
     except Exception as e:
-        st.warning(f"MyMemory translation error: {str(e)}")
+        st.warning(f"Translation error: {str(e)}")
 
     # If MyMemory fails, use Google Translate
     st.warning("Falling back to Google Translate...")
