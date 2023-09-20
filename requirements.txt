@@ -16,5 +16,4 @@ PyPDF2
 langdetect
 SpeechRecognition
 pydub
-ffmpeg
 transformers==4.28.0
