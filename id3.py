@@ -14,8 +14,11 @@ import easyocr
 from PIL import Image
 import speech_recognition as sr
 from pydub import AudioSegment
-from transformers import pipeline
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+import heapq
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -162,20 +165,38 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-def summarize_text(input_text, max_length=150, min_length=30, do_sample=False):
-    # Load the BART tokenizer and model
-    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
-    model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
+def summarize_large_text(text, num_sentences=5):
+    # Tokenize the text into sentences
+    sentences = sent_tokenize(text)
 
-    # Tokenize the input text
-    inputs = tokenizer(input_text, return_tensors="pt", max_length=max_length, truncation=True, padding=True)
+    # Tokenize the text into words
+    words = word_tokenize(text)
 
-    # Generate the summary
-    summary_ids = model.generate(inputs["input_ids"], max_length=max_length, min_length=min_length, do_sample=do_sample)
+    # Remove stopwords and punctuation
+    stop_words = set(stopwords.words("english"))
+    filtered_words = [word.lower() for word in words if word.isalnum() and word.lower() not in stop_words]
 
-    # Decode and return the summary
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+    # Calculate word frequency
+    word_freq = FreqDist(filtered_words)
+
+    # Calculate sentence scores based on word frequency
+    sentence_scores = {}
+    for sentence in sentences:
+        for word in word_tokenize(sentence.lower()):
+            if word in word_freq:
+                if sentence not in sentence_scores:
+                    sentence_scores[sentence] = word_freq[word]
+                else:
+                    sentence_scores[sentence] += word_freq[word]
+
+    # Get the top N sentences with the highest scores
+    summary_sentences = heapq.nlargest(num_sentences, sentence_scores, key=sentence_scores.get)
+
+    # Combine the selected sentences into the summary
+    summary = " ".join(summary_sentences)
+
     return summary
+
 
 # Function to count words in the text
 def count_words(text):
