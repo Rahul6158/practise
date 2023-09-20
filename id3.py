@@ -144,15 +144,8 @@ def translate_text_with_google(text, target_language):
     return translated_text
 
 # Function to convert text to speech and save as an MP3 file
-def convert_text_to_speech(text, output_file, language='en'):
-    if text:
-        supported_languages = list(language_mapping.keys())  # Add more supported languages as needed
-        if language not in supported_languages:
-            st.warning(f"Unsupported language: {language}")
-            return
+convert_text_to_speech(translated_text, output_file, target_language=target_language_code)
 
-        tts = gTTS(text=text, lang=language)
-        tts.save(output_file)
 
 # Function to generate a download link for a file
 def get_binary_file_downloader_html(link_text, file_path, file_format):
@@ -167,13 +160,6 @@ def convert_text_to_word_doc(text, output_file):
     doc = Document()
     doc.add_paragraph(text)
     doc.save(output_file)
-
-# Function to translate text with fallback to Google Translate on error
-def translate_text_with_fallback(text, target_language):
-    try:
-        return translate_text_with_google(text, target_language)
-    except Exception as e:
-        st.warning(f"Google Translate error: {str(e)}")
 
 # Function to count words in the text
 def count_words(text):
