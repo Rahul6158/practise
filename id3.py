@@ -160,11 +160,14 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-def recognize_speech(audio_bytes):
+def recognize_speech(uploaded_file):
     recognizer = sr.Recognizer()
     recognized_text = ""
 
     try:
+        # Read the content of the uploaded audio file
+        audio_bytes = uploaded_file.read()
+        
         # Convert audio to WAV format
         wav_bytes = convert_audio_to_wav(audio_bytes)
         
