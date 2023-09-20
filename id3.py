@@ -20,6 +20,9 @@ from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 import heapq
 
+nltk.download("punkt")
+nltk.download("stopwords")
+
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
     # Extract text from the DOCX file
