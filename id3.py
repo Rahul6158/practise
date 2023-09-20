@@ -182,19 +182,16 @@ def translate_text_with_google(text, target_language):
 
     return translated_text
 
-# Function to translate text with fallback to Google Translate on errors
-from translate import Translator
+# Function to translate text with fallback to Google Translate on error
+def translate_text_with_fallback(text, target_language):
+    try:
+        return translate_text(text, target_language)
+    except Exception as e:
+        st.warning(f"MyMemory translation error: {str(e)}")
 
-# Function to translate text using MyMemory
-def translate_text(text, source_language, target_language):
-    translator = Translator(from_lang=source_language, to_lang=target_language)
-    translated_text = translator.translate(text)
-
-    # Check if the translation result contains a MyMemory warning
-    if "MYMEMORY WARNING" in translated_text:
-        raise Exception(translated_text)
-
-    return translated_text
+    # If MyMemory fails, use Google Translate
+    st.warning("Falling back to Google Translate...")
+    return translate_text_with_google(text, target_language)
 
 
 # Function to count words in the text
@@ -248,7 +245,7 @@ def main():
             st.subheader(f"Word Count: {word_count} words")
 
             # Check if word count exceeds 1000
-            if word_count > 1000:
+            if word_count > 5000:
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 1000
             st.subheader('Select Language to Translate : ')
