@@ -145,18 +145,20 @@ def translate_text_with_fallback(text, target_language):
 # Function to recognize speech from an audio file and return text
 def recognize_speech(audio_file):
     recognizer = sr.Recognizer()
-    with sr.AudioFile(audio_file) as source:
-        audio = recognizer.record(source)
-    
+    recognized_text = ""
+
     try:
-        text = recognizer.recognize_google(audio)
-        return text
+        with sr.AudioFile(audio_file) as source:
+            audio_data = recognizer.record(source)
+            recognized_text = recognizer.recognize_google(audio_data)
     except sr.UnknownValueError:
-        st.warning("Speech recognition could not understand audio.")
-        return ""
+        st.warning("Google Speech Recognition could not understand audio.")
     except sr.RequestError as e:
         st.error(f"Could not request results from Google Speech Recognition service; {str(e)}")
-        return ""
+    except Exception as e:
+        st.error(f"An error occurred during speech recognition: {str(e)}")
+
+    return recognized_text
 
 # Function to count words in the text
 def count_words(text):
