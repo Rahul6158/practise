@@ -175,6 +175,27 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
+import streamlit as st
+import speech_recognition as sr
+
+def recognize_speech():
+    # Create a recognizer object
+    recognizer = sr.Recognizer()
+
+    # Capture audio from the user
+    with sr.Microphone() as source:
+        st.write("Please speak something...")
+        audio = recognizer.listen(source)
+
+    try:
+        # Recognize the speech
+        text = recognizer.recognize_google(audio)
+        st.write(f"Recognized Text: {text}")
+    except sr.UnknownValueError:
+        st.write("Could not understand audio")
+    except sr.RequestError as e:
+        st.write(f"Could not request results; {e}")
+        
 # Function to count words in the text
 def count_words(text):
     words = text.split()
