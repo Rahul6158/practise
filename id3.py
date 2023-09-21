@@ -163,15 +163,22 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-# Function to summarize text with a lower num_sentences
-def summarize_large_text(text, num_sentences=2):
+# Load pre-trained model and tokenizer
+model_name = "t5-small"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+# Create a summarization pipeline
+summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+
+# Function to summarize text
+def summarize_text(text, max_length=150):
     try:
-        # Summarize text with a higher num_sentences value for a longer summary
-        summarized_text = summarize_large_text(text, num_sentences=5)
+        summarized_text = summarizer(text, max_length=max_length, min_length=30, do_sample=False)[0]['summary_text']
         return summarized_text
     except Exception as e:
         st.error(f"Error summarizing text: {str(e)}")
-        return ""
+        return None
 
 # Function to count words in the text
 def count_words(text):
