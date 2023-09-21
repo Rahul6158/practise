@@ -132,26 +132,22 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert formatted text to PDF
+# Function to convert text to PDF
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_font("DejaVu", fname="DejaVuSansCondensed.ttf", uni=True)  # Use a Unicode font like DejaVu
+    
+    # Use an absolute path to the font file
+    font_path = "Arial Unicode MS.ttf"
+    
+    pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
+    pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
+    
+    # Ensure the text is encoded in UTF-8
+    encoded_text = text.encode('utf-8')
 
-    # Split the text into paragraphs based on double line breaks
-    paragraphs = text.split('\n\n')
-
-    for paragraph in paragraphs:
-        # Split each paragraph into lines based on single line breaks
-        lines = paragraph.split('\n')
-        for line in lines:
-            # Ensure the text is encoded in UTF-8
-            encoded_line = line.encode('latin1', 'replace').decode('latin1')
-            pdf.set_font("DejaVu", size=12)
-            pdf.multi_cell(0, 10, txt=encoded_line, align="L")
-        pdf.ln()  # Move to the next line between paragraphs
-
+    pdf.multi_cell(0, 10, txt=encoded_text.decode('utf-8'), align="L")
     pdf.output(output_file)
 
 # Function to count words in the text
