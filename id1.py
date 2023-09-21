@@ -138,7 +138,7 @@ def convert_text_to_pdf(text, output_file):
     pdf.set_auto_page_break(auto=True, margin=15)
     
     # Use an absolute path to the font file
-    font_path = "/full/path/to/ArialUnicodeMS.ttf"
+    font_path = "Arial Unicode MS.ttf"
     
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
     pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
