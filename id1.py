@@ -144,19 +144,18 @@ def convert_text_to_pdf(text, output_file):
     packet.seek(0)
     
     # create a PDF from the StringIO buffer
-    new_pdf = PdfFileReader(packet)
-    existing_pdf = PdfFileReader(open("template.pdf", "rb"))  # Load a template PDF if needed
-    output = PdfFileWriter()
+    new_pdf = PdfReader(packet)  # Change PdfFileReader to PdfReader
+    existing_pdf = PdfReader(open("template.pdf", "rb"))  # Load a template PDF if needed
+    output = PdfWriter()
 
     # add the "watermark" (which is the new pdf) on the existing page
-    page = existing_pdf.getPage(0)
-    page.mergePage(new_pdf.getPage(0))
+    page = existing_pdf.pages[0]  # Change getPage to pages
+    page.mergePage(new_pdf.pages[0])  # Change getPage to pages
     output.addPage(page)
 
     # finally, write "output" to a real file
     with open(output_file, "wb") as f:
         output.write(f)
-
 # Function to count words in the text
 def count_words(text):
     words = text.split()
