@@ -143,7 +143,7 @@ def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
 
-    # Add a file uploader for DOCX, PDF, images
+    # Add a file uploader for DOCX, PDF, images, and TXT
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
 
     if uploaded_file is not None:
@@ -197,12 +197,8 @@ def main():
                     # Define target_language_code within this scope
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
-                    # Translate text using Google Translate
-                    try:
-                        translated_text = translate_text_with_google(text, target_language_code)
-                    except Exception as e:
-                        st.error(f"Google Translate error: {str(e)}")
-                        translated_text = None
+                    # Translate text using Google Translate with error handling
+                    translated_text = translate_text_with_fallback(text, target_language_code)
 
                     # Display translated text
                     if translated_text:
@@ -211,31 +207,32 @@ def main():
                     else:
                         st.warning("Translation result is empty. Please check your input text.")
 
-                    # Convert translated text to speech
-                    output_file = "translated_speech.mp3"
-                    convert_text_to_speech(translated_text, output_file, language=target_language_code)
+                    if translated_text:
+                        # Convert translated text to speech
+                        output_file = "translated_speech.mp3"
+                        convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
-                    # Play the generated speech
-                    audio_file = open(output_file, 'rb')
-                    st.audio(audio_file.read(), format='audio/mp3')
+                        # Play the generated speech
+                        audio_file = open(output_file, 'rb')
+                        st.audio(audio_file.read(), format='audio/mp3')
 
-                    # Play the generated speech (platform-dependent)
-                    if os.name == 'posix':  # For Unix/Linux
-                        os.system(f"xdg-open {output_file}")
-                    elif os.name == 'nt':  # For Windows
-                        os.system(f"start {output_file}")
-                    else:
-                        st.warning("Unsupported operating system")
+                        # Play the generated speech (platform-dependent)
+                        if os.name == 'posix':  # For Unix/Linux
+                            os.system(f"xdg-open {output_file}")
+                        elif os.name == 'nt':  # For Windows
+                            os.system(f"start {output_file}")
+                        else:
+                            st.warning("Unsupported operating system")
 
-                    # Provide a download link for the MP3 file
-                    st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
+                        # Provide a download link for the MP3 file
+                        st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
 
-                    # Convert the translated text to a DOCX document
-                    docx_output_file = "translated_text.docx"
-                    convert_text_to_word_doc(translated_text, docx_output_file)
+                        # Convert the translated text to a DOCX document
+                        docx_output_file = "translated_text.docx"
+                        convert_text_to_word_doc(translated_text, docx_output_file)
 
-                    # Provide a download link for the DOCX document
-                    st.markdown(get_binary_file_downloader_html("Download DOCX Document", docx_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+                        # Provide a download link for the DOCX document
+                        st.markdown(get_binary_file_downloader_html("Download DOCX Document", docx_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
