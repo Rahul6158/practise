@@ -132,34 +132,23 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert text to PDF with two columns
-def convert_text_to_pdf(text, output_file):
+# Function to convert text to PDF
+def convert_text_to_pdf(columns, output_file):
     pdf = FPDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
     
     # Use an absolute path to the font file
     font_path = "Arial Unicode MS.ttf"
     
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
     
-    # Ensure the text is encoded in UTF-8
-    encoded_text = text.encode('utf-8')
+    for column in columns:
+        pdf.add_page()
+        # Ensure the text is encoded in UTF-8
+        encoded_text = column.encode('utf-8')
+        pdf.multi_cell(0, 10, txt=encoded_text.decode('utf-8'), align="L")
     
-    # Split the text into two columns
-    text_lines = encoded_text.decode('utf-8').split('\n')
-    
-    for line1, line2 in zip(text_lines[::2], text_lines[1::2]):
-        # Add text to the left column
-        pdf.cell(0, 10, txt=line1, align="L")
-        
-        # Add text to the right column
-        pdf.cell(0, 10, txt=line2, align="L")
-        
-        # Add a new line to separate columns
-        pdf.ln(10)
-
     pdf.output(output_file)
 
 # Function to count words in the text
