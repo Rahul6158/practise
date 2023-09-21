@@ -136,12 +136,8 @@ def translate_text_with_fallback(text, target_language):
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
-    
-    # Provide the correct path to the "DejaVuSansCondensed.ttf" file
-    font_path = "DejaVuSansCondensed.ttf"  # Update with the correct path
-    
-    pdf.add_font("DejaVu", fname=font_path, uni=True)
-    pdf.set_font("DejaVu", size=12)
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_font("Arial", size=12)  # Use the default font
     
     # Ensure the text is encoded in UTF-8
     encoded_text = text.encode('latin1', 'replace').decode('latin1')
