@@ -132,25 +132,45 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert text to PDF
-def convert_text_to_pdf(columns, output_file):
+def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
     
     # Use an absolute path to the font file
-    font_path = "Arial Unicode MS.ttf"
+    font_path = "/full/path/to/ArialUnicodeMS.ttf"
     
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
-    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
     
-    for column in columns:
-        pdf.add_page()
-        # Ensure the text is encoded in UTF-8
-        encoded_text = column.encode('utf-8')
-        pdf.multi_cell(0, 10, txt=encoded_text.decode('utf-8'), align="L")
+    # Ensure the text is encoded in UTF-8
+    encoded_text = text.encode('utf-8')
     
-    pdf.output(output_file)
+    # Split the text into lines and calculate the maximum line length
+    lines = encoded_text.decode('utf-8').splitlines()
+    max_line_length = max(len(line) for line in lines)
+    
+    # Calculate the page width and set the column width
+    page_width = pdf.w - 2 * pdf.l_margin
+    column_width = page_width / 2
+    
+    # Calculate the maximum line length that fits in a column
+    max_column_line_length = max_line_length // 2
+    
+    for line in lines:
+        # Calculate the number of lines needed for this text
+        num_lines = (len(line) // max_column_line_length) + 1
+        
+        # Ensure that each line fits within the column width
+        wrapped_lines = pdf.multi_cell(column_width, 10, txt=line, border=0, align="L", split_only=True)
+        
+        if len(wrapped_lines) > 1:
+            for i, wrapped_line in enumerate(wrapped_lines):
+                pdf.cell(column_width, 10, txt=wrapped_line, ln=(i < len(wrapped_lines) - 1))
+        else:
+            pdf.cell(column_width, 10, txt=line, ln=True)
 
+    pdf.output(output_file)
 # Function to count words in the text
 def count_words(text):
     words = text.split()
