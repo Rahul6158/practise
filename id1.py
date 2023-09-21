@@ -136,14 +136,15 @@ def translate_text_with_fallback(text, target_language):
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, txt=text, align="L")
-    pdf.output(output_file)
-# Function to count words in the text
-def count_words(text):
-    words = text.split()
-    return len(words)
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_font("DejaVu", fname="DejaVuSansCondensed.ttf", uni=True)
+    pdf.set_font("DejaVu", size=12)
+    
+    # Ensure the text is encoded in UTF-8
+    encoded_text = text.encode('latin1', 'replace').decode('latin1')
 
+    pdf.multi_cell(0, 10, txt=encoded_text, align="L")
+    pdf.output(output_file)
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
