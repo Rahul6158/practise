@@ -11,21 +11,25 @@ from PIL import Image
 import PyPDF2
 import pytesseract
 import easyocr
+from PIL import Image
+import speech_recognition as sr
+from pydub import AudioSegment
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 
 nltk.download("punkt")
 nltk.download("stopwords")
 
-# Define a language mapping dictionary
-language_mapping = {
-    "en": "English",
-    "es": "Spanish",
-    "fr": "French",
-    # Add more languages as needed
-}
+# Load pre-trained model and tokenizer for summarization
+summarization_model_name = "t5-small"
+summarization_tokenizer = AutoTokenizer.from_pretrained(summarization_model_name)
+summarization_model = AutoModelForSeq2SeqLM.from_pretrained(summarization_model_name)
+
+# Create a summarization pipeline
+summarizer = pipeline("summarization", model=summarization_model, tokenizer=summarization_tokenizer)
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -109,24 +113,156 @@ def convert_text_to_word_doc(text, output_file):
     doc.add_paragraph(text)
     doc.save(output_file)
 
+# Function to convert Word document to HTML
+def convert_word_doc_to_html(docx_file):
+    txt = docx2txt.process(docx_file)
+    soup = BeautifulSoup(txt, 'html.parser')
+    return soup.prettify()
+
+# Function to translate text using the translate library with a loop
+def translate_text(text, target_language):
+    translator = Translator(to_lang=target_language)
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = translator.translate(chunk)
+        translated_text += translated_chunk
+
+    return translated_text
+
+# Function to translate text using Google Translate with a loop
+def translate_text_with_google(text, target_language):
+    google_translator = GoogleTranslator()
+
+    max_chunk_length = 500
+    translated_text = ""
+
+    for i in range(0, len(text), max_chunk_length):
+        chunk = text[i:i + max_chunk_length]
+        translated_chunk = google_translator.translate(chunk, dest=target_language).text
+        translated_text += translated_chunk
+
+    return translated_text
+
+# Function to recognize speech from an audio file and return text
+def convert_audio_to_wav(audio_bytes):
+    try:
+        # Load audio data from bytes
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
+        
+        # Export audio as WAV format
+        wav_audio = audio.export(format="wav")
+        
+        # Convert to bytes
+        wav_bytes = wav_audio.read()
+        
+        return wav_bytes
+    except Exception as e:
+        st.error(f"Error converting audio to WAV format: {str(e)}")
+        return None
+
+# Load pre-trained model and tokenizer
+model_name = "t5-small"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+# Create a summarization pipeline
+summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+
+# Function to summarize text
+def summarize_text(text, max_length=150):
+    try:
+        summarized_text = summarizer(text, max_length=max_length, min_length=30, do_sample=False)[0]['summary_text']
+        return summarized_text
+    except Exception as e:
+        st.error(f"Error summarizing text: {str(e)}")
+        return None
+
 # Function to count words in the text
 def count_words(text):
+    if text is None:
+        return 0  # Return 0 if text is None
+    if not isinstance(text, str):
+        return 0  # Return 0 if text is not a string
     words = text.split()
     return len(words)
-
-if __name__ == "__main__":
+    
+language_mapping = {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "nl": "Dutch",
+    "hi": "Hindi",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh-cn": "Simplified Chinese",
+    "ru": "Russian",
+    "ar": "Arabic",
+    "th": "Thai",
+    "tr": "Turkish",
+    "pl": "Polish",
+    "cs": "Czech",
+    "sv": "Swedish",
+    "da": "Danish",
+    "fi": "Finnish",
+    "el": "Greek",
+    "hu": "Hungarian",
+    "uk": "Ukrainian",
+    "no": "Norwegian",
+    "id": "Indonesian",
+    "vi": "Vietnamese",
+    "ro": "Romanian",
+    "bn": "Bengali",
+    "fa": "Persian",
+    "iw": "Hebrew",
+    "bg": "Bulgarian",
+    "ca": "Catalan",
+    "hr": "Croatian",
+    "sr": "Serbian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "et": "Estonian",
+    "is": "Icelandic",
+    "ga": "Irish",
+    "sq": "Albanian",
+    "mk": "Macedonian",
+    "hy": "Armenian",
+    "ka": "Georgian",
+    "mt": "Maltese",
+    "mr": "Marathi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "ur": "Urdu",
+    "ne": "Nepali",
+    "si": "Sinhala",
+    "km": "Khmer",
+    "lo": "Lao",
+    "my": "Burmese",
+    "jw": "Javanese",
+    "mn": "Mongolian",
+    "zu": "Zulu",
+    "xh": "Xhosa"
+}
+# Main Streamlit app
+def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
 
-    # Add a file uploader for DOCX, PDF, images
-    uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
+    # Add a file uploader for DOCX, PDF, images, and audio
+    uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt", "mp3"])
 
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split('.')[-1].lower()
 
         # Initialize text as None
         text = None
-        translated_text = None  # Initialize translated text
 
         if file_extension == "docx":
             # Display DOCX content
@@ -142,13 +278,19 @@ if __name__ == "__main__":
 
             # Extract text from the image using custom function
             image_bytes = uploaded_file.read()  # Read the image as bytes
-            extracted_text = extract_text_from_uploaded_image(image_bytes)
+            extracted_text = extract_text_from_image(image_bytes)
             st.write("Text extracted from the image:")
             st.write(extracted_text)
         elif file_extension == "txt":
             # Display TXT content
             txt_text = uploaded_file.read()
             text = txt_text
+        elif file_extension == "mp3":
+            # Recognize speech from the audio file
+            recognized_text = recognize_speech(uploaded_file)
+            st.subheader("Recognized Text from Audio:")
+            st.write(recognized_text)
+            text = recognized_text
 
         if text is not None:
             st.subheader("Text Extracted from Uploaded File:")
@@ -158,39 +300,30 @@ if __name__ == "__main__":
             word_count = count_words(text)
             st.subheader(f"Word Count: {word_count} words")
 
-            # Check if word count exceeds 5000
-            if word_count > 15000:
-                st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
-                return  # Exit the function if word count exceeds 5000
+            # Check if word count exceeds 1000
+            if word_count > 1000:
+                st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
+            else:
+                if st.button("Summarize Text"):
+                    if text:
+                        # Reduce the num_sentences parameter for more aggressive summarization
+                        summarized_text = summarize_large_text(text, num_sentences=2)
+                        st.subheader("Summarized Text:")
+                        st.write(summarized_text)
+                st.subheader('Select Language to Translate:')
+                target_language_code = st.selectbox("Select target language:", list(language_mapping.keys()))
 
-            st.subheader('Select Language to Translate:')
-            target_language = st.selectbox("Select target language:", list(language_mapping.values()))
-
-            if st.button("Translate"):
-                # Check if text is not empty or None before attempting translation
-                if text and len(text.strip()) > 0:
+                if st.button("Translate Text"):
                     # Translate the extracted text
                     try:
-                        translated_text = translate_text(text, target_language)
+                        translated_text = translate_text(text, target_language_code)
+                        st.subheader(f"Translated text ({language_mapping[target_language_code]}):")
+                        st.write(translated_text)
                     except Exception as e:
                         st.error(f"Translation error: {str(e)}")
-                        translated_text = None
-                else:
-                    st.warning("Input text is empty. Please check your document.")
 
-                # Display translated text
-                if translated_text:
-                    st.subheader(f"Translated text ({target_language}):")
-                    st.write(translated_text)
-                else:
-                    st.warning("Translation result is empty. Please check your input text.")
-
-            if translated_text is not None:
+                # Add button to convert translated text to speech and get the translated document
                 if st.button("Convert to Speech and get Translated document"):
-                    # Get the target language code from language_mapping
-                    target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
-
-                    # Convert translated text to speech
                     output_file = "translated_speech.mp3"
                     convert_text_to_speech(translated_text, output_file, language=target_language_code)
 
@@ -198,13 +331,20 @@ if __name__ == "__main__":
                     audio_file = open(output_file, 'rb')
                     st.audio(audio_file.read(), format='audio/mp3')
 
+                    # Play the generated speech (platform-dependent)
+                    if os.name == 'posix':  # For Unix/Linux
+                        os.system(f"xdg-open {output_file}")
+                    elif os.name == 'nt':  # For Windows
+                        os.system(f"start {output_file}")
+                    else:
+                        st.warning("Unsupported operating system")
+
                     # Provide a download link for the MP3 file
                     st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
 
                     # Convert the translated text to a Word document
                     word_output_file = "translated_text.docx"
                     convert_text_to_word_doc(translated_text, word_output_file)
-
                     # Provide a download link for the Word document
                     st.markdown(get_binary_file_downloader_html("Download Word Document", word_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
 
