@@ -11,23 +11,21 @@ from PIL import Image
 import PyPDF2
 import pytesseract
 import easyocr
-from pydub import AudioSegment
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
-from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 
 nltk.download("punkt")
 nltk.download("stopwords")
 
-# Load pre-trained model and tokenizer for summarization
-summarization_model_name = "t5-small"
-summarization_tokenizer = AutoTokenizer.from_pretrained(summarization_model_name)
-summarization_model = AutoModelForSeq2SeqLM.from_pretrained(summarization_model_name)
-
-# Create a summarization pipeline
-summarizer = pipeline("summarization", model=summarization_model, tokenizer=summarization_tokenizer)
+# Define a language mapping dictionary
+language_mapping = {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    # Add more languages as needed
+}
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -111,25 +109,12 @@ def convert_text_to_word_doc(text, output_file):
     doc.add_paragraph(text)
     doc.save(output_file)
 
-# Function to convert Word document to HTML
-def convert_word_doc_to_html(docx_file):
-    txt = docx2txt.process(docx_file)
-    soup = BeautifulSoup(txt, 'html.parser')
-    return soup.prettify()
-
-# Function to recognize speech from an audio file and return text
-def recognize_speech(audio_file):
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(audio_file) as source:
-        audio_data = recognizer.record(source)
-        return recognizer.recognize_google(audio_data)
-
 # Function to count words in the text
 def count_words(text):
     words = text.split()
     return len(words)
 
-def main():
+if __name__ == "__main__":
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
 
@@ -186,7 +171,7 @@ def main():
                 if text and len(text.strip()) > 0:
                     # Translate the extracted text
                     try:
-                        translated_text = translate_text_with_fallback(text, target_language)
+                        translated_text = translate_text(text, target_language)
                     except Exception as e:
                         st.error(f"Translation error: {str(e)}")
                         translated_text = None
@@ -205,13 +190,6 @@ def main():
                     # Get the target language code from language_mapping
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
-                    # Translate text using Google Translate
-                    try:
-                        translated_text = translate_text_with_google(translated_text, target_language_code)
-                    except Exception as e:
-                        st.error(f"Google Translate error: {str(e)}")
-                        return
-
                     # Convert translated text to speech
                     output_file = "translated_speech.mp3"
                     convert_text_to_speech(translated_text, output_file, language=target_language_code)
@@ -219,14 +197,6 @@ def main():
                     # Play the generated speech
                     audio_file = open(output_file, 'rb')
                     st.audio(audio_file.read(), format='audio/mp3')
-
-                    # Play the generated speech (platform-dependent)
-                    if os.name == 'posix':  # For Unix/Linux
-                        os.system(f"xdg-open {output_file}")
-                    elif os.name == 'nt':  # For Windows
-                        os.system(f"start {output_file}")
-                    else:
-                        st.warning("Unsupported operating system")
 
                     # Provide a download link for the MP3 file
                     st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
