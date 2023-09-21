@@ -166,8 +166,8 @@ def convert_audio_to_wav(audio_bytes):
 # Function to summarize text with a lower num_sentences
 def summarize_large_text(text, num_sentences=2):
     try:
-        # Summarize the text
-        summarized_text = summarizer(text, max_length=150, min_length=30, do_sample=False, num_beams=4, length_penalty=2.0, num_return_sequences=1)[0]['summary_text']
+        # Summarize text with a higher num_sentences value for a longer summary
+        summarized_text = summarize_large_text(text, num_sentences=5)
         return summarized_text
     except Exception as e:
         st.error(f"Error summarizing text: {str(e)}")
