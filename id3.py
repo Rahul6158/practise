@@ -155,33 +155,30 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-import spacy
-from collections import Counter
-import heapq
-
-# Load spaCy English language model
-nlp = spacy.load("en_core_web_sm")
-
+# Function to summarize text using NLTK
 def summarize_large_text(text, num_sentences=5):
-    # Tokenize the text into sentences using spaCy
-    doc = nlp(text)
-    sentences = [sent.text for sent in doc.sents]
+    # Tokenize the text into sentences
+    sentences = sent_tokenize(text)
 
-    # Tokenize the text into words, remove stop words and punctuation using spaCy
-    filtered_words = [token.text.lower() for token in doc if token.is_alpha and not token.is_stop]
+    # Tokenize the text into words
+    words = word_tokenize(text)
 
-    # Calculate word frequency using Counter
-    word_freq = Counter(filtered_words)
+    # Remove stopwords and punctuation
+    stop_words = set(stopwords.words("english"))
+    filtered_words = [word.lower() for word in words if word.isalnum() and word.lower() not in stop_words]
+
+    # Calculate word frequency
+    word_freq = FreqDist(filtered_words)
 
     # Calculate sentence scores based on word frequency
     sentence_scores = {}
     for sentence in sentences:
-        for word in sentence.split():
-            if word.lower() in word_freq:
+        for word in word_tokenize(sentence.lower()):
+            if word in word_freq:
                 if sentence not in sentence_scores:
-                    sentence_scores[sentence] = word_freq[word.lower()]
+                    sentence_scores[sentence] = word_freq[word]
                 else:
-                    sentence_scores[sentence] += word_freq[word.lower()]
+                    sentence_scores[sentence] += word_freq[word]
 
     # Get the top N sentences with the highest scores
     summary_sentences = heapq.nlargest(num_sentences, sentence_scores, key=sentence_scores.get)
