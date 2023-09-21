@@ -138,7 +138,9 @@ def count_words(text):
     words = text.split()
     return len(words)
 
-# Main Streamlit app
+# ... Import statements and function definitions ...
+
+# Streamlit app main function
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
