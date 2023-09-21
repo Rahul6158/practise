@@ -18,7 +18,6 @@ import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
-import heapq
 
 nltk.download("punkt")
 nltk.download("stopwords")
@@ -155,8 +154,8 @@ def convert_audio_to_wav(audio_bytes):
         st.error(f"Error converting audio to WAV format: {str(e)}")
         return None
 
-# Function to summarize text using NLTK
-def summarize_large_text(text, num_sentences=5):
+# Function to summarize text with a lower num_sentences
+def summarize_large_text(text, num_sentences=2):
     # Tokenize the text into sentences
     sentences = sent_tokenize(text)
 
@@ -187,6 +186,7 @@ def summarize_large_text(text, num_sentences=5):
     summary = " ".join(summary_sentences)
 
     return summary
+
 
 # Function to count words in the text
 def count_words(text):
@@ -308,12 +308,12 @@ def main():
             if word_count > 1000:
                 st.warning("Warning: The document contains more than 1000 words, which may be too large for translation.")
             else:
-                # Add buttons for summarization and translation
                 if st.button("Summarize Text"):
-                    summarized_text = summarize_large_text(text)
-                    st.subheader("Summarized Text:")
-                    st.write(summarized_text)
-
+                    if text:
+                        # Reduce the num_sentences parameter for more aggressive summarization
+                        summarized_text = summarize_large_text(text, num_sentences=2)
+                        st.subheader("Summarized Text:")
+                        st.write(summarized_text)
                 st.subheader('Select Language to Translate:')
                 target_language_code = st.selectbox("Select target language:", list(language_mapping.keys()))
 
