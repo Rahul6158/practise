@@ -12,6 +12,9 @@ import pytesseract
 import easyocr
 import PyPDF2
 from PIL import Image
+from PyPDF2 import PdfFileWriter, PdfFileReader
+import tempfile
+
 
 language_mapping = {
     "en": "English",
@@ -125,6 +128,20 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
+# Function to convert text to PDF
+def convert_text_to_pdf(text, output_file):
+    pdf = PdfFileWriter()
+    pdf.addPage()
+    pdf_writer = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    with open(pdf_writer.name, 'wb') as f:
+        pdf.write(f)
+    pdf_writer.close()
+    merger = PdfFileMerger()
+    merger.append(pdf_writer.name)
+    merger.addText(text)
+    merger.write(output_file)
+    merger.close()
+
 # Function to count words in the text
 def count_words(text):
     words = text.split()
@@ -222,13 +239,12 @@ def main():
                     # Provide a download link for the MP3 file
                     st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
 
-                    # Convert the translated text to a Word document
-                    word_output_file = "translated_text.docx"
-                    convert_text_to_word_doc(translated_text, word_output_file)
+                    # Convert the translated text to a PDF document
+                    pdf_output_file = "translated_text.pdf"
+                    convert_text_to_pdf(translated_text, pdf_output_file)
 
-                    # Provide a download link for the Word document
-                    st.markdown(get_binary_file_downloader_html("Download Word Document", word_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+                    # Provide a download link for the PDF document
+                    st.markdown(get_binary_file_downloader_html("Download PDF Document", pdf_output_file, 'application/pdf'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
-
