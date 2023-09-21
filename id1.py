@@ -114,7 +114,7 @@ def get_binary_file_downloader_html(link_text, file_path, file_format):
     download_link = f'<a href="data:{file_format};base64,{b64_file}" download="{os.path.basename(file_path)}">{link_text}</a>'
     return download_link
 
-# Function to convert translated text to a Word document
+# Function to convert text to a Word document
 def convert_text_to_word_doc(text, output_file):
     doc = Document()
     doc.add_paragraph(text)
@@ -138,9 +138,7 @@ def count_words(text):
     words = text.split()
     return len(words)
 
-# ... Import statements and function definitions ...
-
-# Streamlit app main function
+# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
@@ -232,12 +230,12 @@ def main():
                     # Provide a download link for the MP3 file
                     st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
 
-                    # Convert the translated text to a PDF document
-                    pdf_output_file = "translated_text.pdf"
-                    convert_text_to_pdf(translated_text, pdf_output_file)
+                    # Convert the translated text to a DOCX document
+                    docx_output_file = "translated_text.docx"
+                    convert_text_to_word_doc(translated_text, docx_output_file)
 
-                    # Provide a download link for the PDF document
-                    st.markdown(get_binary_file_downloader_html("Download PDF Document", pdf_output_file, 'application/pdf'), unsafe_allow_html=True)
+                    # Provide a download link for the DOCX document
+                    st.markdown(get_binary_file_downloader_html("Download DOCX Document", docx_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
