@@ -18,9 +18,18 @@ import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 
 nltk.download("punkt")
 nltk.download("stopwords")
+
+# Load pre-trained model and tokenizer for summarization
+summarization_model_name = "t5-small"
+summarization_tokenizer = AutoTokenizer.from_pretrained(summarization_model_name)
+summarization_model = AutoModelForSeq2SeqLM.from_pretrained(summarization_model_name)
+
+# Create a summarization pipeline
+summarizer = pipeline("summarization", model=summarization_model, tokenizer=summarization_tokenizer)
 
 # Function to extract text from a DOCX file
 def process_docx_text(docx_file, skip_lists=True):
@@ -155,22 +164,14 @@ def convert_audio_to_wav(audio_bytes):
         return None
 
 # Function to summarize text with a lower num_sentences
-from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
-
-# Load pre-trained model and tokenizer
-model_name = "t5-small"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-
-# Create a summarization pipeline
-summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
-
-
-
-# Function to count words in the text
-def count_words(text):
-    words = text.split()
-    return len(words)
+def summarize_large_text(text, num_sentences=2):
+    try:
+        # Summarize the text
+        summarized_text = summarizer(text, max_length=150, min_length=30, do_sample=False, num_beams=4, length_penalty=2.0, num_return_sequences=1)[0]['summary_text']
+        return summarized_text
+    except Exception as e:
+        st.error(f"Error summarizing text: {str(e)}")
+        return ""
 
 language_mapping = {
     "en": "English",
