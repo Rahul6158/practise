@@ -183,14 +183,14 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             
             # Display the text in a text area for editing
-            edited_text = st.text_area("Edit the extracted text", value=text)
-            
+            edited_text = st.text_area("Edit the extracted text", value=text, height=400)
+    
             # Count words in the edited text
             word_count = count_words(edited_text)
             st.subheader(f"Word Count: {word_count} words")
 
             # Check if word count exceeds 5000
-            if word_count > 15000:
+            if word_count > 40000:
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
 
