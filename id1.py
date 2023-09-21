@@ -43,15 +43,10 @@ def process_docx_text(docx_file, skip_lists=True):
     return text
 
 # Function to extract text from an uploaded image using Pytesseract
-def extract_text_from_uploaded_image(uploaded_image, language='eng'):
+def extract_text_from_uploaded_image(image_bytes, language='eng'):
     try:
-        # Open the image using Pillow (PIL)
-        image = Image.open(uploaded_image)
-        
-        # Convert the image to RGB mode (required by Tesseract)
+        image = Image.open(io.BytesIO(image_bytes))
         image = image.convert('RGB')
-
-        # Use pytesseract to extract text
         text = pytesseract.image_to_string(image, lang=language)
         return text
     except Exception as e:
