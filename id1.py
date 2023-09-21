@@ -144,7 +144,6 @@ def count_words(text):
     words = text.split()
     return len(words)
 
-# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
@@ -182,10 +181,12 @@ def main():
 
         if text is not None:
             st.subheader("Text Extracted from Uploaded File:")
-            st.write(text)
-
-            # Count words in the text
-            word_count = count_words(text)
+            
+            # Display the text in a text area for editing
+            edited_text = st.text_area("Edit the extracted text", value=text)
+            
+            # Count words in the edited text
+            word_count = count_words(edited_text)
             st.subheader(f"Word Count: {word_count} words")
 
             # Check if word count exceeds 5000
@@ -196,15 +197,15 @@ def main():
             st.subheader('Select Language to Translate : ')
             target_language = st.selectbox("Select target Regional language:", list(language_mapping.values()))
 
-            # Check if text is not empty or None before attempting translation
-            if text and len(text.strip()) > 0:
+            # Check if edited text is not empty or None before attempting translation
+            if edited_text and len(edited_text.strip()) > 0:
                 # Add a button to trigger the translation and text-to-speech conversion
                 if st.button("Translate - Convert to Speech and get Translated document"):
                     # Define target_language_code within this scope
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
-                    # Translate text using Google Translate with error handling
-                    translated_text = translate_text_with_fallback(text, target_language_code)
+                    # Translate edited text using Google Translate with error handling
+                    translated_text = translate_text_with_fallback(edited_text, target_language_code)
 
                     # Display translated text
                     if translated_text:
