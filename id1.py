@@ -132,33 +132,34 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert text to PDF with two columns
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    
+
     # Use an absolute path to the font file
     font_path = "Arial Unicode MS.ttf"
-    
+
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
-    pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
-    
-    # Ensure the text is encoded in UTF-8
-    encoded_text = text.encode('utf-8')
-    
-    # Split the text into two columns
-    text_lines = encoded_text.decode('utf-8').split('\n')
-    
-    for line1, line2 in zip(text_lines[::2], text_lines[1::2]):
-        # Add text to the left column
-        pdf.cell(0, 10, txt=line1, align="L")
-        
-        # Add text to the right column
-        pdf.cell(0, 10, txt=line2, align="L")
-        
-        # Add a new line to separate columns
-        pdf.ln(10)
+
+    # Start with a reasonable font size
+    font_size = 12
+    pdf.set_font("ArialUnicodeMS", size=font_size)
+
+    # Calculate the page width and height
+    page_width = pdf.w - 2 * pdf.l_margin
+    page_height = pdf.h - 2 * pdf.t_margin
+
+    # Split the text into lines
+    lines = text.splitlines()
+
+    for line in lines:
+        while pdf.get_string_width(line) > page_width:
+            # Reduce font size until the line fits
+            font_size -= 1
+            pdf.set_font("ArialUnicodeMS", size=font_size)
+
+        pdf.multi_cell(page_width, 10, txt=line, border=0, align="L")
 
     pdf.output(output_file)
 
