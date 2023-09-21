@@ -14,6 +14,7 @@ import PyPDF2
 from PIL import Image
 
 language_mapping = {
+    "en": "English",
     "hi": "Hindi",
     "gu": "Gujarati",
     "ta": "Tamil",
@@ -21,8 +22,6 @@ language_mapping = {
     "kn": "Kannada",
     "mr": "Marathi",
     "bn": "Bengali",
-    "pa": "Punjabi",
-    "ur": "Urdu"
 }
 
 
