@@ -14,6 +14,7 @@ import PyPDF2
 from PIL import Image
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import tempfile
+from PyPDF2 import PdfWriter
 
 
 language_mapping = {
@@ -130,17 +131,21 @@ def translate_text_with_fallback(text, target_language):
 
 # Function to convert text to PDF
 def convert_text_to_pdf(text, output_file):
-    pdf = PdfFileWriter()
-    pdf.addPage()
-    pdf_writer = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    with open(pdf_writer.name, 'wb') as f:
-        pdf.write(f)
-    pdf_writer.close()
-    merger = PdfFileMerger()
-    merger.append(pdf_writer.name)
-    merger.addText(text)
-    merger.write(output_file)
-    merger.close()
+    pdf_writer = PdfWriter()
+    pdf_writer.addPage()
+    
+    pdf_writer.addPage()
+    pdf_writer.addBookmark('Start', 0)
+    pdf_writer.addBookmark('Table of Contents', 0)
+
+    pdf_writer.addBookmark('Introduction', 0)
+    pdf_writer.addBookmark('Section 1', 1)
+    pdf_writer.addBookmark('Section 2', 1)
+
+    pdf_writer.addBookmark('Conclusion', 0)
+
+    with open(output_file, 'wb') as pdf_file:
+        pdf_writer.write(pdf_file)
 
 # Function to count words in the text
 def count_words(text):
