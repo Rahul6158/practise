@@ -132,15 +132,10 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-def convert_text_to_docx(text, output_file):
-    doc = docx.Document()
-
-    # Split the text into lines
-    lines = text.splitlines()
-
-    for line in lines:
-        doc.add_paragraph(line)
-
+# Function to convert translated text to a Word document
+def convert_text_to_word_doc(text, output_file):
+    doc = Document()
+    doc.add_paragraph(text)
     doc.save(output_file)
 
 # Function to count words in the text
