@@ -19,3 +19,4 @@ pydub
 transformers==4.28.0
 nltk
 spacy
+reportlab
