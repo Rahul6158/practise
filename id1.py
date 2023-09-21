@@ -22,7 +22,6 @@ from fpdf import FPDF
 
 language_mapping = {
     "en": "English",
-    "hi": "Hindi",
     "gu": "Gujarati",
     "ta": "Tamil",
     "te": "Telugu",
