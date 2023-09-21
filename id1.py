@@ -180,9 +180,15 @@ def count_words(text):
     words = text.split()
     return len(words)
 
+# Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
+
+    # Initialize session state
+    session_state = st.session_state
+    if 'translated_text' not in session_state:
+        session_state.translated_text = None
 
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
@@ -192,7 +198,6 @@ def main():
 
         # Initialize text as None
         text = None
-        translated_text = None  # Initialize translated text
 
         if file_extension == "docx":
             # Display DOCX content
@@ -225,7 +230,7 @@ def main():
             st.subheader(f"Word Count: {word_count} words")
 
             # Check if word count exceeds 5000
-            if word_count > 15000:
+            if word_count > 29000:
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
 
@@ -238,21 +243,25 @@ def main():
                     # Translate the extracted text
                     try:
                         translated_text = translate_text_with_fallback(text, target_language)
+                        session_state.translated_text = translated_text  # Store translated text in session state
                     except Exception as e:
                         st.error(f"Translation error: {str(e)}")
-                        translated_text = None
+                        session_state.translated_text = None
                 else:
                     st.warning("Input text is empty. Please check your document.")
 
                 # Display translated text
-                if translated_text:
+                if session_state.translated_text:
                     st.subheader(f"Translated text ({target_language}):")
-                    st.write(translated_text)
+                    st.write(session_state.translated_text)
                 else:
                     st.warning("Translation result is empty. Please check your input text.")
 
-            if translated_text is not None:
-                if st.button("Convert to Speech and get Translated document"):
+            if st.button("Convert to Speech and get Translated document"):
+                # Use the translated text from session state
+                translated_text = session_state.translated_text
+
+                if translated_text:
                     # Get the target language code from language_mapping
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
