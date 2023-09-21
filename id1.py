@@ -132,24 +132,27 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert text to PDF
-def convert_text_to_pdf(text, output_file):
+# Function to convert text to PDF with side-by-side formatting
+def convert_text_to_pdf(original_text, translated_text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    
-    # Use an absolute path to the font file
-    font_path = "Arial Unicode MS.ttf"
-    
-    pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
-    pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
-    
+    pdf.set_font("Arial", size=12)  # Use the default font
+
     # Ensure the text is encoded in UTF-8
-    encoded_text = text.encode('utf-8')
+    original_text = original_text.encode('latin1', 'replace').decode('latin1')
+    translated_text = translated_text.encode('latin1', 'replace').decode('latin1')
 
-    pdf.multi_cell(0, 10, txt=encoded_text.decode('utf-8'), align="L")
+    # Split the text into lines
+    original_lines = original_text.split('\n')
+    translated_lines = translated_text.split('\n')
+
+    for original_line, translated_line in zip(original_lines, translated_lines):
+        # Add the original and translated lines side by side
+        combined_line = f"{original_line.strip()}  |  {translated_line.strip()}"
+        pdf.multi_cell(0, 10, txt=combined_line, align="L")
+    
     pdf.output(output_file)
-
 
 # Function to count words in the text
 def count_words(text):
