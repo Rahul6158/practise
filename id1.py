@@ -137,7 +137,7 @@ def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Courier", size=12)  # Use a monospaced font
+    pdf.add_font("DejaVu", fname="DejaVuSansCondensed.ttf", uni=True)  # Use a Unicode font like DejaVu
 
     # Split the text into paragraphs based on double line breaks
     paragraphs = text.split('\n\n')
@@ -148,6 +148,7 @@ def convert_text_to_pdf(text, output_file):
         for line in lines:
             # Ensure the text is encoded in UTF-8
             encoded_line = line.encode('latin1', 'replace').decode('latin1')
+            pdf.set_font("DejaVu", size=12)
             pdf.multi_cell(0, 10, txt=encoded_line, align="L")
         pdf.ln()  # Move to the next line between paragraphs
 
