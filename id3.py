@@ -155,37 +155,16 @@ def convert_audio_to_wav(audio_bytes):
         return None
 
 # Function to summarize text with a lower num_sentences
-def summarize_large_text(text, num_sentences=2):
-    # Tokenize the text into sentences
-    sentences = sent_tokenize(text)
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 
-    # Tokenize the text into words
-    words = word_tokenize(text)
+# Load pre-trained model and tokenizer
+model_name = "t5-small"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-    # Remove stopwords and punctuation
-    stop_words = set(stopwords.words("english"))
-    filtered_words = [word.lower() for word in words if word.isalnum() and word.lower() not in stop_words]
+# Create a summarization pipeline
+summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
 
-    # Calculate word frequency
-    word_freq = FreqDist(filtered_words)
-
-    # Calculate sentence scores based on word frequency
-    sentence_scores = {}
-    for sentence in sentences:
-        for word in word_tokenize(sentence.lower()):
-            if word in word_freq:
-                if sentence not in sentence_scores:
-                    sentence_scores[sentence] = word_freq[word]
-                else:
-                    sentence_scores[sentence] += word_freq[word]
-
-    # Get the top N sentences with the highest scores
-    summary_sentences = heapq.nlargest(num_sentences, sentence_scores, key=sentence_scores.get)
-
-    # Combine the selected sentences into the summary
-    summary = " ".join(summary_sentences)
-
-    return summary
 
 
 # Function to count words in the text
