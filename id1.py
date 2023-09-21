@@ -124,6 +124,11 @@ def recognize_speech(audio_file):
         audio_data = recognizer.record(source)
         return recognizer.recognize_google(audio_data)
 
+# Function to count words in the text
+def count_words(text):
+    words = text.split()
+    return len(words)
+
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
