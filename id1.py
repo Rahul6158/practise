@@ -181,7 +181,7 @@ def main():
                 return  # Exit the function if word count exceeds 5000
 
             st.subheader('Select Language to Translate : ')
-            target_language = st.selectbox("Select target language:", list(language_mapping.values()))
+            target_language = st.selectbox("Select target Regional language:", list(language_mapping.values()))
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
