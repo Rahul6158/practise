@@ -229,7 +229,7 @@ def main():
                 st.warning("Warning: The document contains more than 5000 words, which may be too large for translation.")
                 return  # Exit the function if word count exceeds 5000
 
-            st.subheader('Select Language to Translate : ')
+            st.subheader('Select Language to Translate:')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             if st.button("Translate"):
@@ -251,8 +251,8 @@ def main():
                 else:
                     st.warning("Translation result is empty. Please check your input text.")
 
-                # Convert the translated text to speech and generate download links
-                if st.button("Convert to Speech and get Translated document") and translated_text:
+            if st.button("Convert to Speech and get Translated document"):
+                if translated_text:
                     # Get the target language code from language_mapping
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
