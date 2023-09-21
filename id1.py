@@ -145,6 +145,12 @@ def convert_text_to_pdf(text, output_file):
 
     pdf.multi_cell(0, 10, txt=encoded_text, align="L")
     pdf.output(output_file)
+
+# Function to count words in the text
+def count_words(text):
+    words = text.split()
+    return len(words)
+
 # Main Streamlit app
 def main():
     st.image("jangirii.png", width=50)
