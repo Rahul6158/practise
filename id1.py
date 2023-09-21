@@ -185,21 +185,23 @@ def main():
 
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
-                # Translate the extracted text
-                try:
-                    translated_text = translate_text_with_fallback(text, target_language)
-                except Exception as e:
-                    st.error(f"Translation error: {str(e)}")
-                    translated_text = None
+                # Add a button to trigger the translation
+                if st.button("Translate"):
+                    # Translate the extracted text
+                    try:
+                        translated_text = translate_text_with_fallback(text, target_language)
+                    except Exception as e:
+                        st.error(f"Translation error: {str(e)}")
+                        translated_text = None
+
+                    # Display translated text
+                    if translated_text:
+                        st.subheader(f"Translated text ({target_language}):")
+                        st.write(translated_text)
+                    else:
+                        st.warning("Translation result is empty. Please check your input text.")
             else:
                 st.warning("Input text is empty. Please check your document.")
-
-            # Display translated text
-            if translated_text:
-                st.subheader(f"Translated text ({target_language}):")
-                st.write(translated_text)
-            else:
-                st.warning("Translation result is empty. Please check your input text.")
 
             # Add a button to trigger the conversion to speech and document
             if st.button("Convert to Speech and get Translated document"):
