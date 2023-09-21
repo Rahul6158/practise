@@ -138,7 +138,7 @@ def convert_text_to_pdf(text, output_file):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_font("ArialUnicodeMS", fname="ArialUnicodeMS.ttf", uni=True)
-    pdf.set_font("ArialUnicodeMS", size=12)  # Use a Unicode font
+    pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
     
     # Ensure the text is encoded in UTF-8
     encoded_text = text.encode('utf-8')
