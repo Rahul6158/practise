@@ -137,7 +137,7 @@ def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", size=12)  # Use the default font
+    pdf.set_font("Courier", size=12)  # Use a monospaced font
 
     # Split the text into paragraphs based on double line breaks
     paragraphs = text.split('\n\n')
