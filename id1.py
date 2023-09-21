@@ -180,7 +180,6 @@ def count_words(text):
     words = text.split()
     return len(words)
 
-# ...
 def main():
     st.image("jangirii.png", width=50)
     st.title("Text Translation and Conversion to Speech (English - other languages)")
@@ -193,6 +192,7 @@ def main():
 
         # Initialize text as None
         text = None
+        translated_text = None  # Initialize translated text
 
         if file_extension == "docx":
             # Display DOCX content
@@ -251,8 +251,8 @@ def main():
                 else:
                     st.warning("Translation result is empty. Please check your input text.")
 
-            if st.button("Convert to Speech and get Translated document"):
-                if translated_text:
+            if translated_text is not None:
+                if st.button("Convert to Speech and get Translated document"):
                     # Get the target language code from language_mapping
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
