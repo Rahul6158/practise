@@ -173,6 +173,15 @@ def summarize_large_text(text, num_sentences=2):
         st.error(f"Error summarizing text: {str(e)}")
         return ""
 
+# Function to count words in the text
+def count_words(text):
+    if text is None:
+        return 0  # Return 0 if text is None
+    if not isinstance(text, str):
+        return 0  # Return 0 if text is not a string
+    words = text.split()
+    return len(words)
+    
 language_mapping = {
     "en": "English",
     "es": "Spanish",
