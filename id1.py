@@ -132,7 +132,7 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-def convert_text_to_pdf(text, output_file):
+def convert_text_to_pdf(text, output_file, font_size=12):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -141,9 +141,6 @@ def convert_text_to_pdf(text, output_file):
     font_path = "Arial Unicode MS.ttf"
 
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
-
-    # Start with a reasonable font size
-    font_size = 12
     pdf.set_font("ArialUnicodeMS", size=font_size)
 
     # Calculate the page width and height
@@ -154,11 +151,6 @@ def convert_text_to_pdf(text, output_file):
     lines = text.splitlines()
 
     for line in lines:
-        while pdf.get_string_width(line) > page_width:
-            # Reduce font size until the line fits
-            font_size -= 1
-            pdf.set_font("ArialUnicodeMS", size=font_size)
-
         pdf.multi_cell(page_width, 10, txt=line, border=0, align="L")
 
     pdf.output(output_file)
