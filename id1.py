@@ -132,6 +132,7 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
+# Function to convert text to PDF with two columns
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
@@ -146,31 +147,21 @@ def convert_text_to_pdf(text, output_file):
     # Ensure the text is encoded in UTF-8
     encoded_text = text.encode('utf-8')
     
-    # Split the text into lines and calculate the maximum line length
-    lines = encoded_text.decode('utf-8').splitlines()
-    max_line_length = max(len(line) for line in lines)
+    # Split the text into two columns
+    text_lines = encoded_text.decode('utf-8').split('\n')
     
-    # Calculate the page width and set the column width
-    page_width = pdf.w - 2 * pdf.l_margin
-    column_width = page_width / 2
-    
-    # Calculate the maximum line length that fits in a column
-    max_column_line_length = max_line_length // 2
-    
-    for line in lines:
-        # Calculate the number of lines needed for this text
-        num_lines = (len(line) // max_column_line_length) + 1
+    for line1, line2 in zip(text_lines[::2], text_lines[1::2]):
+        # Add text to the left column
+        pdf.cell(0, 10, txt=line1, align="L")
         
-        # Ensure that each line fits within the column width
-        wrapped_lines = pdf.multi_cell(column_width, 10, txt=line, border=0, align="L", split_only=True)
+        # Add text to the right column
+        pdf.cell(0, 10, txt=line2, align="L")
         
-        if len(wrapped_lines) > 1:
-            for i, wrapped_line in enumerate(wrapped_lines):
-                pdf.cell(column_width, 10, txt=wrapped_line, ln=(i < len(wrapped_lines) - 1))
-        else:
-            pdf.cell(column_width, 10, txt=line, ln=True)
+        # Add a new line to separate columns
+        pdf.ln(10)
 
     pdf.output(output_file)
+
 # Function to count words in the text
 def count_words(text):
     words = text.split()
