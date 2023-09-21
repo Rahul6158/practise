@@ -132,21 +132,24 @@ def translate_text_with_fallback(text, target_language):
     except Exception as e:
         st.warning(f"Google Translate error: {str(e)}")
 
-# Function to convert text to PDF
+# Function to convert formatted text to PDF
 def convert_text_to_pdf(text, output_file):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)  # Use the default font
 
-    # Split the text into paragraphs
-    paragraphs = text.split('\n')
+    # Split the text into paragraphs based on double line breaks
+    paragraphs = text.split('\n\n')
 
     for paragraph in paragraphs:
-        # Ensure the text is encoded in UTF-8
-        encoded_paragraph = paragraph.encode('latin1', 'replace').decode('latin1')
-        pdf.multi_cell(0, 10, txt=encoded_paragraph, align="L")
-        pdf.ln()  # Move to the next line
+        # Split each paragraph into lines based on single line breaks
+        lines = paragraph.split('\n')
+        for line in lines:
+            # Ensure the text is encoded in UTF-8
+            encoded_line = line.encode('latin1', 'replace').decode('latin1')
+            pdf.multi_cell(0, 10, txt=encoded_line, align="L")
+        pdf.ln()  # Move to the next line between paragraphs
 
     pdf.output(output_file)
 
