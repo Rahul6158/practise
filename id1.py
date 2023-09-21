@@ -186,7 +186,7 @@ def main():
             # Check if text is not empty or None before attempting translation
             if text and len(text.strip()) > 0:
                 # Add a button to trigger the translation and text-to-speech conversion
-                if st.button("Convert to Speech and get Translated document"):
+                if st.button("Translate - Convert to Speech and get Translated document"):
                     # Define target_language_code within this scope
                     target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
 
