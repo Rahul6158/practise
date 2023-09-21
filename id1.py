@@ -138,8 +138,8 @@ def convert_text_to_pdf(text, output_file):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Specify the full path to the font file
-    font_path = os.path.join("Arial Unicode MS.ttf", "ArialUnicodeMS.ttf")
+    # Use an absolute path to the font file
+    font_path = "Arial Unicode MS.ttf"
     
     pdf.add_font("ArialUnicodeMS", fname=font_path, uni=True)
     pdf.set_font("ArialUnicodeMS", size=12)  # Use the Unicode font
@@ -149,6 +149,7 @@ def convert_text_to_pdf(text, output_file):
 
     pdf.multi_cell(0, 10, txt=encoded_text.decode('utf-8'), align="L")
     pdf.output(output_file)
+
 
 # Function to count words in the text
 def count_words(text):
