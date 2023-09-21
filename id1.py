@@ -17,6 +17,7 @@ import tempfile
 from PyPDF2 import PdfWriter
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from fpdf import FPDF
 
 
 language_mapping = {
@@ -133,29 +134,11 @@ def translate_text_with_fallback(text, target_language):
 
 # Function to convert text to PDF
 def convert_text_to_pdf(text, output_file):
-    packet = io.BytesIO()
-    # create a new PDF with ReportLab
-    c = canvas.Canvas(packet, pagesize=letter)
-    width, height = letter
-    c.drawString(36, height - 36, text)
-    c.save()
-    
-    # move to the beginning of the StringIO buffer
-    packet.seek(0)
-    
-    # create a PDF from the StringIO buffer
-    new_pdf = PdfReader(packet)  # Change PdfFileReader to PdfReader
-    existing_pdf = PdfReader(open("template.pdf", "rb"))  # Load a template PDF if needed
-    output = PdfWriter()
-
-    # add the "watermark" (which is the new pdf) on the existing page
-    page = existing_pdf.pages[0]  # Change getPage to pages
-    page.mergePage(new_pdf.pages[0])  # Change getPage to pages
-    output.addPage(page)
-
-    # finally, write "output" to a real file
-    with open(output_file, "wb") as f:
-        output.write(f)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, txt=text, align="L")
+    pdf.output(output_file)
 # Function to count words in the text
 def count_words(text):
     words = text.split()
