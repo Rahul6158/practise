@@ -70,9 +70,7 @@ language_mapping = {
     "lo": "Lao",
     "my": "Burmese",
     "jw": "Javanese",
-    "mn": "Mongolian",
-    "zu": "Zulu",
-    "xh": "Xhosa"
+    "mn": "Mongolian"
 }
 
 # Function to extract text from a DOCX file
