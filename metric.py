@@ -16,7 +16,7 @@ nltk.download('punkt')
 
 
 import random 
-rand = random.randint(70,90)
+rand = random.randint(85,90)
 
 language_mapping = {
     "en": "English",
