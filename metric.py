@@ -238,7 +238,7 @@ def main():
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
             # Button to translate and generate audio and download links
-            if st.button("Translate and Generate Audio/Download Links"):
+            if st.button("Translate and Generate Audio/Download Links", key="translate_button"):
                 # Check if edited_text is not empty or None before attempting translation
                 if edited_text and len(edited_text.strip()) > 0:
                     # Translate the edited text
