@@ -254,7 +254,7 @@ def main():
                 if translated_text:
                     st.subheader(f"Translated text ({target_language}):")
                     st.write(translated_text)
-                    
+
                     # Evaluate text metrics
                     metrics = evaluate_text_metrics(edited_text, translated_text)
                     st.subheader("Text Metrics:")
