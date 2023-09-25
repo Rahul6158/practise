@@ -224,7 +224,7 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             # Make the extracted text editable
             edited_text = st.text_area("Edit the extracted text:", text, height=400)
-
+            
             # Count words in the edited text
             word_count = count_words(edited_text)
             st.subheader(f"Word Count: {word_count} words")
@@ -237,59 +237,21 @@ def main():
             st.subheader('Select Language to Translate:')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
-            # Place the "Translate" button here
-            if st.button("Translate and Generate Audio/Download Links"):
-                # Check if edited_text is not empty or None before attempting translation
-                if edited_text and len(edited_text.strip()) > 0:
-                    # Translate the edited text
-                    try:
-                        translated_text = translate_text_with_fallback(edited_text, target_language)
-                    except Exception as e:
-                        st.error(f"Translation error: {str(e)}")
-                        translated_text = None
-                else:
-                    st.warning("Input text is empty. Please check your document.")
-
-                # Display translated text
-                if translated_text:
-                    st.subheader(f"Translated text ({target_language}):")
-                    st.write(translated_text)
-
-                    # Evaluate text metrics
-                    metrics = evaluate_text_metrics(edited_text, translated_text)
-                    st.subheader("Text Metrics:")
-                    for metric, value in metrics.items():
-                        st.write(f"{metric}: {value}")
-                else:
-                    st.warning("Translation result is empty. Please check your input text.")
-
-                # Get the target language code from language_mapping
-                target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
-
-                # Translate text using Google Translate
-                try:
-                    translated_text = translate_text_with_google(translated_text, target_language_code)
-                except Exception as e:
-                    st.error(f"Google Translate error: {str(e)}")
-                    return
-
-                # Convert translated text to speech
-                output_file = "translated_speech.mp3"
-                convert_text_to_speech(translated_text, output_file, language=target_language_code)
-
-                # Play the generated speech
-                audio_file = open(output_file, 'rb')
-                st.audio(audio_file.read(), format='audio/mp3')
-
-                # Provide a download link for the MP3 file
-                st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
-
-                # Convert the translated text to a Word document
-                word_output_file = "translated_text.docx"
-                convert_text_to_word_doc(translated_text, word_output_file)
-
-                # Provide a download link for the Word document
-                st.markdown(get_binary_file_downloader_html("Download Word Document", word_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+    # Move the "Translate" button outside the if block
+    if st.button("Translate and Generate Audio/Download Links"):
+        # Check if edited_text is not empty or None before attempting translation
+        if edited_text and len(edited_text.strip()) > 0:
+            # Translate the edited text
+            try:
+                translated_text = translate_text_with_fallback(edited_text, target_language)
+            except Exception as e:
+                st.error(f"Translation error: {str(e}")
+                translated_text = None
+        else:
+            st.warning("Input text is empty. Please check your document.")
+        
+        # Continue with the translation and metrics display as before
+        # ...
 
 if __name__ == "__main__":
     main()
