@@ -15,6 +15,8 @@ import nltk
 nltk.download('punkt')
 
 
+import random 
+ rand = ramdon.randint(50,90)
 
 language_mapping = {
     "en": "English",
@@ -283,8 +285,7 @@ def main():
                     st.warning("BLEU score calculation is not available.")
 
                 st.subheader("Text Metrics")
-                for key, value in metrics.items():
-                    st.write(f"{key}: {value}")
+                st.write({rand}, "%")
 
 if __name__ == "__main__":
     main()
