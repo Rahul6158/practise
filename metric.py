@@ -245,7 +245,7 @@ def main():
                     try:
                         translated_text = translate_text_with_fallback(edited_text, target_language)
                     except Exception as e:
-                        st.error(f"Translation error: {str(e}")
+                        st.error(f"Translation error: {str(e)}")
                         translated_text = None
                 else:
                     st.warning("Input text is empty. Please check your document.")
@@ -261,46 +261,32 @@ def main():
                 original_text = edited_text  # Replace with the original text
                 translated_text = translated_text  # Replace with the translated text
 
-                bleu_score = corpus_bleu(translated_text, [original_text]).score
+                bleu_score = None
+                try:
+                    from nltk.translate.bleu_score import sentence_bleu
+                    bleu_score = sentence_bleu(original_text.split(), translated_text.split())
+                except ImportError:
+                    st.warning("NLTK library not installed. BLEU score calculation is not available.")
 
                 # Display metrics and quality assessment
                 st.subheader("Translation Quality Metrics")
                 st.write(f"BLEU Score: {bleu_score}")
 
-                if bleu_score >= 0.6:
-                    st.success("Translation Quality: High")
-                elif 0.4 <= bleu_score < 0.6:
-                    st.warning("Translation Quality: Average")
+                if bleu_score is not None:
+                    if bleu_score >= 0.6:
+                        st.success("Translation Quality: High")
+                    elif 0.4 <= bleu_score < 0.6:
+                        st.warning("Translation Quality: Average")
+                    else:
+                        st.error("Translation Quality: Low")
                 else:
-                    st.error("Translation Quality: Low")
+                    st.warning("BLEU score calculation is not available.")
 
-                # Get the target language code from language_mapping
-                target_language_code = [code for code, lang in language_mapping.items() if lang == target_language][0]
-
-                # Translate text using Google Translate
-                try:
-                    translated_text = translate_text_with_google(translated_text, target_language_code)
-                except Exception as e:
-                    st.error(f"Google Translate error: {str(e)}")
-                    return
-
-                # Convert translated text to speech
-                output_file = "translated_speech.mp3"
-                convert_text_to_speech(translated_text, output_file, language=target_language_code)
-
-                # Play the generated speech
-                audio_file = open(output_file, 'rb')
-                st.audio(audio_file.read(), format='audio/mp3')
-
-                # Provide a download link for the MP3 file
-                st.markdown(get_binary_file_downloader_html("Download Audio File", output_file, 'audio/mp3'), unsafe_allow_html=True)
-
-                # Convert the translated text to a Word document
-                word_output_file = "translated_text.docx"
-                convert_text_to_word_doc(translated_text, word_output_file)
-
-                # Provide a download link for the Word document
-                st.markdown(get_binary_file_downloader_html("Download Word Document", word_output_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), unsafe_allow_html=True)
+                # Display text metrics
+                metrics = evaluate_text_metrics(original_text, translated_text)
+                st.subheader("Text Metrics")
+                for key, value in metrics.items():
+                    st.write(f"{key}: {value}")
 
 if __name__ == "__main__":
     main()
