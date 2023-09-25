@@ -285,7 +285,7 @@ def main():
                     st.warning("BLEU score calculation is not available.")
 
                 st.subheader("Text Metrics")
-                st.write({rand}, "%")
+                st.write(f"{rand}%")
 
 if __name__ == "__main__":
     main()
