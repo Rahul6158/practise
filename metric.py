@@ -282,7 +282,7 @@ def main():
                 else:
                     st.warning("BLEU score calculation is not available.")
 
-st.subheader("Text Metrics")
+                st.subheader("Text Metrics")
                 for key, value in metrics.items():
                     st.write(f"{key}: {value}")
 
