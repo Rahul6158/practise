@@ -12,6 +12,9 @@ import pytesseract
 import easyocr
 import PyPDF2
 from PIL import Image
+import nltk
+nltk.download('punkt')
+
 
 
 language_mapping = {
