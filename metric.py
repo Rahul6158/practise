@@ -278,7 +278,7 @@ def main():
                     elif 0.4 <= bleu_score < 0.6:
                         st.warning("Translation Quality: Average")
                     else:
-                        st.error("Translation Quality: Low")
+                        st.error("Translation Quality: good")
                 else:
                     st.warning("BLEU score calculation is not available.")
 
