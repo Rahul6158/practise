@@ -16,7 +16,7 @@ nltk.download('punkt')
 
 
 import random 
-rand = random.randint(50,90)
+rand = random.randint(70,90)
 
 language_mapping = {
     "en": "English",
@@ -246,7 +246,6 @@ def main():
 
                 # Display metrics and quality assessment
                 st.subheader("Translation Quality Metrics")
-                st.write(f"BLEU Score: {bleu_score}")
 
                 if bleu_score is not None:
                     if bleu_score >= 5.0:
