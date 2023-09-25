@@ -156,32 +156,6 @@ def evaluate_text_metrics(original_text, translated_text):
 
     return metrics
 
-# Inside the main function, after translating the text:
-if st.button("Translate and Generate Audio/Download Links"):
-    # Check if edited_text is not empty or None before attempting translation
-    if edited_text and len(edited_text.strip()) > 0:
-        # Translate the edited text
-        try:
-            translated_text = translate_text_with_fallback(edited_text, target_language)
-        except Exception as e:
-            st.error(f"Translation error: {str(e)}")
-            translated_text = None
-    else:
-        st.warning("Input text is empty. Please check your document.")
-
-    # Display translated text
-    if translated_text:
-        st.subheader(f"Translated text ({target_language}):")
-        st.write(translated_text)
-        
-        # Evaluate text metrics
-        metrics = evaluate_text_metrics(edited_text, translated_text)
-        st.subheader("Text Metrics:")
-        for metric, value in metrics.items():
-            st.write(f"{metric}: {value}")
-    else:
-        st.warning("Translation result is empty. Please check your input text.")
-
 # Function to count words in the text
 def count_words(text):
     words = text.split()
@@ -238,6 +212,19 @@ def main():
 
             st.subheader('Select Language to Translate:')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
+
+                # Button to translate and generate audio and download links
+            if st.button("Translate and Generate Audio/Download Links", key="translate_button"):
+                # Check if edited_text is not empty or None before attempting translation
+                if edited_text and len(edited_text.strip()) > 0:
+                    # Translate the edited text
+                    try:
+                        translated_text = translate_text_with_fallback(edited_text, target_language)
+                    except Exception as e:
+                        st.error(f"Translation error: {str(e)}")
+                        translated_text = None
+                else:
+                    st.warning("Input text is empty. Please check your document.")
 
                 # Display translated text
                 if translated_text:
