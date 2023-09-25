@@ -273,7 +273,7 @@ def main():
                 st.write(f"BLEU Score: {bleu_score}")
 
                 if bleu_score is not None:
-                    if bleu_score >= 0.6:
+                    if bleu_score >= 5.0:
                         st.success("Translation Quality: High")
                     elif 0.4 <= bleu_score < 0.6:
                         st.warning("Translation Quality: Average")
@@ -282,11 +282,9 @@ def main():
                 else:
                     st.warning("BLEU score calculation is not available.")
 
-                # Display text metrics
-                metrics = evaluate_text_metrics(original_text, translated_text)
-                st.subheader("Text Metrics")
+st.subheader("Text Metrics")
                 for key, value in metrics.items():
-                    st.write("BLUE SCORE : 80%")
+                    st.write(f"{key}: {value}")
 
 if __name__ == "__main__":
     main()
