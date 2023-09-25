@@ -187,7 +187,7 @@ def count_words(text):
 
 def main():
     st.image("jangirii.png", width=300)
-    st.title("Text Translation and Conversion to Speech ( MultiLingual )")
+    st.title("Text Translation and Conversion to Speech (MultiLingual)")
 
     # Add a file uploader for DOCX, PDF, images
     uploaded_file = st.file_uploader("Upload a file", type=["docx", "pdf", "jpg", "jpeg", "png", "txt"])
@@ -224,7 +224,7 @@ def main():
             st.subheader("Text Extracted from Uploaded File:")
             # Make the extracted text editable
             edited_text = st.text_area("Edit the extracted text:", text, height=400)
-            
+
             # Count words in the edited text
             word_count = count_words(edited_text)
             st.subheader(f"Word Count: {word_count} words")
@@ -237,7 +237,7 @@ def main():
             st.subheader('Select Language to Translate:')
             target_language = st.selectbox("Select target language:", list(language_mapping.values()))
 
-            # Button to translate and generate audio and download links
+            # Place the "Translate" button here
             if st.button("Translate and Generate Audio/Download Links"):
                 # Check if edited_text is not empty or None before attempting translation
                 if edited_text and len(edited_text.strip()) > 0:
