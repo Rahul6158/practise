@@ -31,25 +31,26 @@ def create_post():
     username = st.text_input("Username")
     content = st.text_area("Post Content", height=200)
 
-    # File upload for images or videos
     uploaded_file = st.file_uploader("Choose a file", type=["jpg", "jpeg", "png", "mp4"])
 
     if st.button("Create Post"):
         if uploaded_file is not None:
-            # Upload the file to the server or handle as needed
-            # Example: Save the file locally
             with open(f"{username}_post_{len(username)}.jpg", "wb") as f:
                 f.write(uploaded_file.getvalue())
             st.success("File uploaded successfully.")
         else:
             st.warning("No file selected. You can upload an image or video.")
 
-        # Additional logic for sending other post content to the server
-        response = requests.post("http://localhost:5000/create_post", json={"username": username, "content": content})
-        if response.status_code == 200:
-            st.success("Post created successfully.")
-        else:
-            st.error("Failed to create post. User may not exist or an error occurred.")
+        # Wrap the requests.post in a try-except block to catch ConnectionError
+        try:
+            response = requests.post("http://localhost:5000/create_post", json={"username": username, "content": content})
+            if response.status_code == 200:
+                st.success("Post created successfully.")
+            else:
+                st.error(f"Failed to create post. Server returned status code {response.status_code}.")
+        except requests.exceptions.ConnectionError as e:
+            st.error(f"ConnectionError: {e}. Check server availability and URL.")
+
 
 def main():
     st.sidebar.header("User Authentication")
