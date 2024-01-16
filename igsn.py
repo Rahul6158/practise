@@ -3,7 +3,7 @@ import streamlit as st
 import requests
 
 def fetch_anime_quote():
-    api_url = "https://github.com/RocktimSaikia/anime-chan"
+    api_url = "https://chandan-02.github.io/anime-facts-rest-api/"
     response = requests.get(api_url)
 
     if response.status_code == 200:
