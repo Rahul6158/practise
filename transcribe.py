@@ -4,7 +4,7 @@ import assemblyai as aai
 # Set your AssemblyAI API key
 aai.settings.api_key = "d325d0881c4049839b0da5cb5905e6fe"
 
-# Create a transcriber object
+# Create a transcriber object       
 transcriber = aai.Transcriber()
 
 # Define a function to handle the streaming transcription
