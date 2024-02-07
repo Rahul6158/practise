@@ -8,10 +8,11 @@ def transcribe_audio(audio_file):
         "authorization": "d325d0881c4049839b0da5cb5905e6fe",
         "content-type": "application/json"
     }
-    data = {
-        "audio_url": audio_file,
-    }
-    response = requests.post(endpoint, json=data, headers=headers)
+    
+    # Read audio file content as binary
+    audio_content = audio_file.read()
+
+    response = requests.post(endpoint, data=audio_content, headers=headers)
     if response.status_code == 201:
         transcript_id = response.json()['id']
         return get_transcription(transcript_id)
