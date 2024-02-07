@@ -5,7 +5,7 @@ import streamlit as st
 def transcribe_audio(audio_file):
     endpoint = "https://api.assemblyai.com/v2/transcript"
     headers = {
-        "authorization": "YOUR_API_KEY",
+        "authorization": "d325d0881c4049839b0da5cb5905e6fe",
         "content-type": "application/json"
     }
     data = {
