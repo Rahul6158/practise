@@ -15,4 +15,3 @@ transformers==4.28.0
 nltk
 python-docx
 easyocr
-assemblyai
