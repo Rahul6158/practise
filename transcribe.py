@@ -1,15 +1,36 @@
+import requests
 import streamlit as st
-import assemblyai as aai
 
-# Set your AssemblyAI API key
-aai.settings.api_key = "d325d0881c4049839b0da5cb5905e6fe"
+# Function to transcribe audio using AssemblyAI API
+def transcribe_audio(audio_file):
+    endpoint = "https://api.assemblyai.com/v2/transcript"
+    headers = {
+        "authorization": "YOUR_API_KEY",
+        "content-type": "application/json"
+    }
+    data = {
+        "audio_url": audio_file,
+    }
+    response = requests.post(endpoint, json=data, headers=headers)
+    if response.status_code == 201:
+        transcript_id = response.json()['id']
+        return get_transcription(transcript_id)
+    else:
+        st.error(f"Error: {response.text}")
+        return None
 
-# Create a transcriber object       
-transcriber = aai.Transcriber()
-
-# Define a function to handle the streaming transcription
-def handle_transcription(transcript_chunk):
-    st.write(transcript_chunk.text)
+# Function to get transcription using AssemblyAI API
+def get_transcription(transcript_id):
+    endpoint = f"https://api.assemblyai.com/v2/transcript/{transcript_id}"
+    headers = {
+        "authorization": "YOUR_API_KEY"
+    }
+    response = requests.get(endpoint, headers=headers)
+    if response.status_code == 200:
+        return response.json()['text']
+    else:
+        st.error(f"Error: {response.text}")
+        return None
 
 # Streamlit App
 def main():
@@ -23,7 +44,11 @@ def main():
         st.write("Transcription:")
 
         # Start transcription
-        transcriber.stream(audio_file, callback=handle_transcription)
+        with st.spinner("Transcribing..."):
+            transcript = transcribe_audio(audio_file)
+
+        if transcript is not None:
+            st.write(transcript)
 
 if __name__ == "__main__":
     main()
