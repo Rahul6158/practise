@@ -23,7 +23,7 @@ def main():
     uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3"])
 
     if uploaded_file is not None:
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_audio:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio:
             tmp_audio.write(uploaded_file.read())
             st.audio(tmp_audio.name, format='audio/wav')
 
