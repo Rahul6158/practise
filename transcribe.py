@@ -1,5 +1,6 @@
 import streamlit as st
 import speech_recognition as sr
+import io
 
 def convert_audio_to_text(audio_data):
     recognizer = sr.Recognizer()
@@ -25,7 +26,8 @@ def main():
         st.audio(audio_bytes, format='audio/wav')
 
         if st.button("Convert to Text"):
-            text = convert_audio_to_text(audio_bytes)
+            audio_data = io.BytesIO(audio_bytes)
+            text = convert_audio_to_text(audio_data)
             st.write("Transcribed Text:")
             st.write(text)
 
