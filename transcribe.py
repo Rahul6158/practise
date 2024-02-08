@@ -1,7 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
 import io
-from pydub import AudioSegment
+import soundfile as sf
 import tempfile
 import os
 
@@ -30,18 +30,12 @@ def main():
 
         if st.button("Convert to Text"):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio:
-                tmp_audio.write(convert_to_wav(audio_bytes))
+                tmp_audio.write(audio_bytes)
                 text = convert_audio_to_text(tmp_audio.name)
                 st.write("Transcribed Text:")
                 st.write(text)
                 
             os.unlink(tmp_audio.name)
-
-def convert_to_wav(audio_bytes):
-    audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
-    with io.BytesIO() as output:
-        audio.export(output, format="wav")
-        return output.getvalue()
 
 if __name__ == "__main__":
     main()
