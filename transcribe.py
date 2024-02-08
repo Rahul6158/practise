@@ -1,12 +1,10 @@
 import streamlit as st
 import speech_recognition as sr
-import tempfile
-import os
 
-def convert_audio_to_text(audio_file):
+def convert_audio_to_text(audio_data):
     recognizer = sr.Recognizer()
     
-    with sr.AudioFile(audio_file) as source:
+    with sr.AudioFile(audio_data) as source:
         audio_data = recognizer.record(source)
     
     try:
@@ -23,17 +21,13 @@ def main():
     uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3"])
 
     if uploaded_file is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio:
-            tmp_audio.write(uploaded_file.read())
-            st.audio(tmp_audio.name, format='audio/wav')
+        audio_bytes = uploaded_file.read()
+        st.audio(audio_bytes, format='audio/wav')
 
-            if st.button("Convert to Text"):
-                text = convert_audio_to_text(tmp_audio.name)
-                st.write("Transcribed Text:")
-                st.write(text)
-                
-            # Delete the temporary audio file
-            os.unlink(tmp_audio.name)
+        if st.button("Convert to Text"):
+            text = convert_audio_to_text(audio_bytes)
+            st.write("Transcribed Text:")
+            st.write(text)
 
 if __name__ == "__main__":
     main()
