@@ -1,15 +1,14 @@
 import streamlit as st
 import speech_recognition as sr
 import io
-import soundfile as sf
 import tempfile
 import os
 
 def convert_audio_to_text(audio_data):
     recognizer = sr.Recognizer()
 
-    with sr.AudioFile(audio_data) as source:
-        audio_data = recognizer.record(source)
+    with io.BytesIO(audio_data) as source:
+        audio_data = recognizer.record(sr.AudioData(source.read(), sample_rate=44100, sample_width=2))
 
     try:
         text = recognizer.recognize_google(audio_data)
@@ -29,13 +28,9 @@ def main():
         st.audio(audio_bytes, format='audio/wav')
 
         if st.button("Convert to Text"):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio:
-                tmp_audio.write(audio_bytes)
-                text = convert_audio_to_text(tmp_audio.name)
-                st.write("Transcribed Text:")
-                st.write(text)
-                
-            os.unlink(tmp_audio.name)
+            text = convert_audio_to_text(audio_bytes)
+            st.write("Transcribed Text:")
+            st.write(text)
 
 if __name__ == "__main__":
     main()
