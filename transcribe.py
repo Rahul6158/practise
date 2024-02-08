@@ -5,7 +5,7 @@ import io
 def convert_audio_to_text(audio_data):
     recognizer = sr.Recognizer()
     
-    with sr.AudioFile(audio_data) as source:
+    with io.BytesIO(audio_data) as source:
         audio_data = recognizer.record(source)
     
     try:
@@ -26,8 +26,7 @@ def main():
         st.audio(audio_bytes, format='audio/wav')
 
         if st.button("Convert to Text"):
-            audio_data = io.BytesIO(audio_bytes)
-            text = convert_audio_to_text(audio_data)
+            text = convert_audio_to_text(audio_bytes)
             st.write("Transcribed Text:")
             st.write(text)
 
