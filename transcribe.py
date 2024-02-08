@@ -1,55 +1,34 @@
-import requests
 import streamlit as st
+import speech_recognition as sr
 
-# Function to transcribe audio using AssemblyAI API
-def transcribe_audio(audio_file):
-    endpoint = "https://api.assemblyai.com/v2/transcript"
-    headers = {
-        "authorization": "d325d0881c4049839b0da5cb5905e6fe",
-        "content-type": "application/json"
-    }
-    
-    # Read audio file content as binary
-    audio_content = audio_file.read()
+def convert_audio_to_text(audio_data):
+    recognizer = sr.Recognizer()
+    audio_file = sr.AudioFile(audio_data)
 
-    response = requests.post(endpoint, data=audio_content, headers=headers)
-    if response.status_code == 201:
-        transcript_id = response.json()['id']
-        return get_transcription(transcript_id)
-    else:
-        st.error(f"Error: {response.text}")
-        return None
+    with audio_file as source:
+        audio = recognizer.record(source)
 
-# Function to get transcription using AssemblyAI API
-def get_transcription(transcript_id):
-    endpoint = f"https://api.assemblyai.com/v2/transcript/{transcript_id}"
-    headers = {
-        "authorization": "YOUR_API_KEY"
-    }
-    response = requests.get(endpoint, headers=headers)
-    if response.status_code == 200:
-        return response.json()['text']
-    else:
-        st.error(f"Error: {response.text}")
-        return None
+    try:
+        text = recognizer.recognize_google(audio)
+        return text
+    except sr.UnknownValueError:
+        return "Could not understand audio"
+    except sr.RequestError as e:
+        return "Error occurred: {0}".format(e)
 
-# Streamlit App
 def main():
-    st.title("Audio Transcription App")
-    
-    # Upload an audio file
-    audio_file = st.file_uploader("Upload an audio file", type=["mp3", "wav"])
+    st.title("Audio to Text Converter")
 
-    if audio_file is not None:
-        st.audio(audio_file, format='audio/mp3', start_time=0)
-        st.write("Transcription:")
+    uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3"])
 
-        # Start transcription
-        with st.spinner("Transcribing..."):
-            transcript = transcribe_audio(audio_file)
+    if uploaded_file is not None:
+        audio_data = uploaded_file.read()
+        st.audio(audio_data, format='audio/wav')
 
-        if transcript is not None:
-            st.write(transcript)
+        if st.button("Convert to Text"):
+            text = convert_audio_to_text(audio_data)
+            st.write("Transcribed Text:")
+            st.write(text)
 
 if __name__ == "__main__":
     main()
