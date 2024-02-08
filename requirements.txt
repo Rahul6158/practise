@@ -1,3 +1,4 @@
+soundfile
 docx2txt
 docx
 streamlit
