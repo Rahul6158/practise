@@ -4,8 +4,9 @@ import io
 
 def convert_audio_to_text(audio_data):
     recognizer = sr.Recognizer()
+    audio_data = io.BytesIO(audio_data)
     
-    with io.BytesIO(audio_data) as source:
+    with sr.AudioFile(audio_data) as source:
         audio_data = recognizer.record(source)
     
     try:
